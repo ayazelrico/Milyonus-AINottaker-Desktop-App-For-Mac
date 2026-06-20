@@ -8,6 +8,12 @@ export const planLimits: Record<Plan, { aiCallsPerMinute: number; monthlyAiCalls
   team: { aiCallsPerMinute: 120, monthlyAiCalls: 20000 }
 };
 
+export const deepgramTokenGrantLimits: Record<Plan, { grantsPerMinute: number }> = {
+  free: { grantsPerMinute: 12 },
+  pro: { grantsPerMinute: 60 },
+  team: { grantsPerMinute: 120 }
+};
+
 export function normalizePlan(plan: unknown): Plan {
   if (plan === "pro" || plan === "team") {
     return plan;
@@ -33,20 +39,43 @@ export async function getUserPlan(supabase: SupabaseClient, userId: string): Pro
 
 export async function assertAssistRateLimit(supabase: SupabaseClient, userId: string, plan: Plan) {
   const limit = planLimits[plan];
+  return assertUsageEventRateLimit(supabase, userId, "ai_call", limit.aiCallsPerMinute);
+}
+
+export async function assertDeepgramTokenGrantRateLimit(
+  supabase: SupabaseClient,
+  userId: string,
+  plan: Plan
+) {
+  const limit = deepgramTokenGrantLimits[plan];
+  return assertUsageEventRateLimit(
+    supabase,
+    userId,
+    "deepgram_token_grant",
+    limit.grantsPerMinute
+  );
+}
+
+async function assertUsageEventRateLimit(
+  supabase: SupabaseClient,
+  userId: string,
+  eventType: string,
+  maxPerMinute: number
+) {
   const since = new Date(Date.now() - 60_000).toISOString();
 
   const { count, error } = await supabase
     .from("usage_logs")
     .select("id", { count: "exact", head: true })
     .eq("user_id", userId)
-    .eq("event_type", "ai_call")
+    .eq("event_type", eventType)
     .gte("created_at", since);
 
   if (error) {
     throw error;
   }
 
-  if ((count ?? 0) >= limit.aiCallsPerMinute) {
+  if ((count ?? 0) >= maxPerMinute) {
     const retryAfterSeconds = 60;
     return {
       ok: false as const,
@@ -57,4 +86,3 @@ export async function assertAssistRateLimit(supabase: SupabaseClient, userId: st
 
   return { ok: true as const };
 }
-

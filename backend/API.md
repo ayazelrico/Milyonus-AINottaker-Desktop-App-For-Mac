@@ -92,6 +92,34 @@ event: done
 data: {"latency_ms":1234}
 ```
 
+## Deepgram Token Grant
+
+Issues a short-lived Deepgram access token for native clients. The server calls
+Deepgram with `DEEPGRAM_API_KEY`; the macOS app must never store or send that
+long-lived API key directly.
+
+```bash
+curl -X POST "$API_BASE_URL/api/deepgram-token" \
+  -H "Authorization: Bearer $SUPABASE_JWT" \
+  -H "Content-Type: application/json"
+```
+
+Response:
+
+```json
+{
+  "token": "eyJ...",
+  "expires_at": "2026-06-20T18:05:00.000Z"
+}
+```
+
+Common errors:
+
+- `401` when the Supabase JWT is missing or invalid.
+- `429` when per-minute token grants are exhausted.
+- `500` when required backend environment variables are missing.
+- `502` when Deepgram token issuance fails upstream.
+
 ## Usage
 
 ```bash
@@ -111,4 +139,3 @@ Response:
   "stt_minutes": 12
 }
 ```
-
