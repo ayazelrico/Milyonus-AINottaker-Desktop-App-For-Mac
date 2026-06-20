@@ -8,7 +8,7 @@ enum DeepgramStreamingError: LocalizedError {
   var errorDescription: String? {
     switch self {
     case .missingDevelopmentKey:
-      return "Deepgram için geliştirme anahtarı yok. Production için backend'den kısa ömürlü token alınmalı."
+      return "Deepgram production'a hazır değil: backend kısa ömürlü token endpoint'i henüz yok."
     case .invalidURL:
       return "Deepgram WebSocket URL'i oluşturulamadı."
     case .websocketClosed:
@@ -60,25 +60,9 @@ final class DeepgramStreamingClient {
   }
 
   private func openSocket() async throws {
-    guard let token = AppConfig.deepgramDevelopmentAPIKey else {
-      // Production must use a backend-issued short-lived token. See docs/TODO_BACKEND.md.
-      throw DeepgramStreamingError.missingDevelopmentKey
-    }
+    throw DeepgramStreamingError.missingDevelopmentKey
 
-    guard let url = deepgramURL() else {
-      throw DeepgramStreamingError.invalidURL
-    }
-
-    var request = URLRequest(url: url)
-    request.addValue("Token \(token)", forHTTPHeaderField: "Authorization")
-
-    let task = URLSession.shared.webSocketTask(with: request)
-    self.task = task
-    task.resume()
-    receiveTask = Task { [weak self] in
-      await self?.receiveLoop()
-    }
-    onStatus?("Deepgram \(source.rawValue) connected")
+    // When /api/deepgram-token exists, fetch a short-lived backend token here and open the socket.
   }
 
   private func deepgramURL() -> URL? {
@@ -184,4 +168,3 @@ private struct DeepgramChannel: Decodable {
 private struct DeepgramAlternative: Decodable {
   let transcript: String
 }
-

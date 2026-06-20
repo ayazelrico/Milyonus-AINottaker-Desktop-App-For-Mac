@@ -42,33 +42,35 @@ enum LanguagePreference: String, CaseIterable, Identifiable {
 }
 
 enum AppConfig {
+  static let authCallbackURL = URL(string: "milyonus://auth-callback")!
+
   static var apiBaseURL: URL? {
     urlValue(for: "API_BASE_URL")
   }
 
-  static var deepgramDevelopmentAPIKey: String? {
-    stringValue(for: "DEEPGRAM_API_KEY")
+  static var supabaseURL: URL? {
+    urlValue(for: "SUPABASE_URL")
   }
 
-  static var mockSupabaseJWT: String? {
-    stringValue(for: "MOCK_SUPABASE_JWT")
+  static var supabaseAnonKey: String? {
+    stringValue(for: "SUPABASE_ANON_KEY")
   }
 
-  private static func stringValue(for key: String) -> String? {
+  static func stringValue(for key: String) -> String? {
     guard let raw = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
       return nil
     }
 
     let trimmed = raw.trimmingCharacters(in: .whitespacesAndNewlines)
 
-    if trimmed.isEmpty || trimmed.hasPrefix("$(") {
+    if trimmed.isEmpty || trimmed.hasPrefix("$(") || trimmed.hasPrefix("BURAYA_") {
       return nil
     }
 
     return trimmed
   }
 
-  private static func urlValue(for key: String) -> URL? {
+  static func urlValue(for key: String) -> URL? {
     guard let value = stringValue(for: key) else {
       return nil
     }
@@ -76,4 +78,3 @@ enum AppConfig {
     return URL(string: value)
   }
 }
-

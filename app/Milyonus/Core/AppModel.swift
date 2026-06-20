@@ -12,6 +12,7 @@ final class AppModel: ObservableObject {
   @Published var assistError: String?
   @Published var pendingQuestion = ""
   @Published var languagePreference: LanguagePreference = .auto
+  @Published var backendConnectionStatus: String?
 
   let authService: AuthServiceProtocol
   let permissionsManager = PermissionsManager()
@@ -41,7 +42,9 @@ final class AppModel: ObservableObject {
     return "waveform.circle"
   }
 
-  init(authService: AuthServiceProtocol = MockAuthService()) {
+  private lazy var backendConnectionTester = BackendConnectionTester(authService: authService)
+
+  init(authService: AuthServiceProtocol = AuthServiceFactory.make()) {
     self.authService = authService
   }
 
@@ -118,6 +121,29 @@ final class AppModel: ObservableObject {
     } catch {
       assistError = error.localizedDescription
     }
+  }
+
+  func signInWithGoogle() async {
+    do {
+      try await authService.signInWithGoogle()
+      statusMessage = "Google OAuth tamamlandı"
+    } catch {
+      assistError = error.localizedDescription
+    }
+  }
+
+  func handleAuthCallback(_ url: URL) async {
+    do {
+      try await authService.handleAuthCallback(url)
+      statusMessage = "Giriş tamamlandı"
+    } catch {
+      assistError = error.localizedDescription
+    }
+  }
+
+  func testBackendConnection() async {
+    backendConnectionStatus = "Test ediliyor..."
+    backendConnectionStatus = await backendConnectionTester.testUsageEndpoint()
   }
 
   func triggerAssistFromHotkey() async {

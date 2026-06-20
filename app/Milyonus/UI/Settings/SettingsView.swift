@@ -6,7 +6,9 @@ struct SettingsView: View {
   var body: some View {
     TabView {
       VStack(alignment: .leading, spacing: 18) {
-        LoginView(authService: appModel.authService)
+        LoginView(authService: appModel.authService) {
+          Task { await appModel.signInWithGoogle() }
+        }
 
         Divider()
 
@@ -47,6 +49,17 @@ struct SettingsView: View {
             .foregroundStyle(.red)
         }
 
+        Button("Test Backend Connection") {
+          Task { await appModel.testBackendConnection() }
+        }
+
+        if let backendConnectionStatus = appModel.backendConnectionStatus {
+          Text(backendConnectionStatus)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .textSelection(.enabled)
+        }
+
         List(appModel.audioCapture.debugMessages, id: \.self) { message in
           Text(message)
             .font(.system(.caption, design: .monospaced))
@@ -59,4 +72,3 @@ struct SettingsView: View {
     }
   }
 }
-

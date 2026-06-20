@@ -1,4 +1,7 @@
 import Foundation
+#if canImport(Supabase)
+  import Supabase
+#endif
 
 struct UserSession: Equatable {
   let userID: String
@@ -8,18 +11,35 @@ struct UserSession: Equatable {
 
 protocol AuthServiceProtocol {
   func signInWithMagicLink(email: String) async throws
+  func signInWithGoogle() async throws
+  func handleAuthCallback(_ url: URL) async throws
   func getCurrentSession() async -> UserSession?
   func signOut() async throws
 }
 
 enum AuthServiceError: LocalizedError {
-  case missingDevelopmentToken
+  case missingSupabaseConfiguration
+  case missingSession
 
   var errorDescription: String? {
     switch self {
-    case .missingDevelopmentToken:
-      return "Geliştirme için MOCK_SUPABASE_JWT ayarlanmalı veya gerçek Supabase Auth bağlanmalı."
+    case .missingSupabaseConfiguration:
+      return "SUPABASE_URL ve SUPABASE_ANON_KEY Secrets.xcconfig içinde ayarlanmalı."
+    case .missingSession:
+      return "Aktif Supabase oturumu bulunamadı."
     }
+  }
+}
+
+enum AuthServiceFactory {
+  static func make() -> AuthServiceProtocol {
+    #if canImport(Supabase)
+      if let service = try? SupabaseAuthService() {
+        return service
+      }
+    #endif
+
+    return MockAuthService()
   }
 }
 
@@ -30,8 +50,16 @@ actor MockAuthService: AuthServiceProtocol {
     currentSession = UserSession(
       userID: "mock-user",
       email: email,
-      accessToken: AppConfig.mockSupabaseJWT
+      accessToken: nil
     )
+  }
+
+  func signInWithGoogle() async throws {
+    throw AuthServiceError.missingSupabaseConfiguration
+  }
+
+  func handleAuthCallback(_ url: URL) async throws {
+    _ = url
   }
 
   func getCurrentSession() async -> UserSession? {
@@ -39,11 +67,7 @@ actor MockAuthService: AuthServiceProtocol {
       return currentSession
     }
 
-    guard let token = AppConfig.mockSupabaseJWT else {
-      return nil
-    }
-
-    return UserSession(userID: "mock-user", email: nil, accessToken: token)
+    return nil
   }
 
   func signOut() async throws {
@@ -51,3 +75,64 @@ actor MockAuthService: AuthServiceProtocol {
   }
 }
 
+#if canImport(Supabase)
+  actor SupabaseAuthService: AuthServiceProtocol {
+    private let client: SupabaseClient
+
+    init() throws {
+      guard let supabaseURL = AppConfig.supabaseURL,
+            let supabaseAnonKey = AppConfig.supabaseAnonKey else {
+        throw AuthServiceError.missingSupabaseConfiguration
+      }
+
+      client = SupabaseClient(
+        supabaseURL: supabaseURL,
+        supabaseKey: supabaseAnonKey,
+        options: SupabaseClientOptions(
+          auth: .init(
+            storage: KeychainLocalStorage(service: "com.milyonus.app.supabase"),
+            redirectToURL: AppConfig.authCallbackURL,
+            storageKey: "milyonus.auth.session",
+            autoRefreshToken: true,
+            emitLocalSessionAsInitialSession: true
+          )
+        )
+      )
+    }
+
+    func signInWithMagicLink(email: String) async throws {
+      try await client.auth.signInWithOTP(
+        email: email,
+        redirectTo: AppConfig.authCallbackURL
+      )
+    }
+
+    func signInWithGoogle() async throws {
+      try await client.auth.signInWithOAuth(
+        provider: .google,
+        redirectTo: AppConfig.authCallbackURL
+      )
+    }
+
+    func handleAuthCallback(_ url: URL) async throws {
+      _ = try await client.auth.session(from: url)
+    }
+
+    func getCurrentSession() async -> UserSession? {
+      do {
+        let session = try await client.auth.session
+        return UserSession(
+          userID: session.user.id.uuidString,
+          email: session.user.email,
+          accessToken: session.accessToken
+        )
+      } catch {
+        return nil
+      }
+    }
+
+    func signOut() async throws {
+      try await client.auth.signOut()
+    }
+  }
+#endif

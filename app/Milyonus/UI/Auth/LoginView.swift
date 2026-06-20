@@ -2,6 +2,7 @@ import SwiftUI
 
 struct LoginView: View {
   let authService: AuthServiceProtocol
+  var onGoogleSignIn: (() -> Void)?
   @State private var email = ""
   @State private var message: String?
 
@@ -17,11 +18,15 @@ struct LoginView: View {
         Task {
           do {
             try await authService.signInWithMagicLink(email: email)
-            message = "Magic link stub çalıştı. Gerçek Supabase Auth entegrasyonu sonraki iterasyonda bağlanacak."
+            message = "Magic link gönderildi. E-postadaki bağlantı milyonus://auth-callback ile uygulamaya dönecek."
           } catch {
             message = error.localizedDescription
           }
         }
+      }
+
+      Button("Google ile Giriş") {
+        onGoogleSignIn?()
       }
 
       if let message {
@@ -32,4 +37,3 @@ struct LoginView: View {
     }
   }
 }
-

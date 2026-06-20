@@ -28,6 +28,11 @@ struct MilyonusApp: App {
     MenuBarExtra("Milyonus", systemImage: appModel.menuBarSystemImage) {
       MenuBarContentView()
         .environmentObject(appModel)
+        .onOpenURL { url in
+          Task { @MainActor in
+            await appModel.handleAuthCallback(url)
+          }
+        }
     }
     .menuBarExtraStyle(.menu)
 
@@ -35,7 +40,11 @@ struct MilyonusApp: App {
       SettingsView()
         .environmentObject(appModel)
         .frame(minWidth: 520, minHeight: 520)
+        .onOpenURL { url in
+          Task { @MainActor in
+            await appModel.handleAuthCallback(url)
+          }
+        }
     }
   }
 }
-

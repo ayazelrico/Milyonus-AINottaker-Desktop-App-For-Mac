@@ -18,6 +18,17 @@
   <string>1.0</string>
   <key>CFBundleVersion</key>
   <string>1</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>com.milyonus.app.auth</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>milyonus</string>
+      </array>
+    </dict>
+  </array>
   <key>LSMinimumSystemVersion</key>
   <string>13.0</string>
   <key>LSUIElement</key>
@@ -28,10 +39,9 @@
   <string>Milyonus, toplantı sesini gerçek zamanlı işleyebilmek için ekran kaydı iznine ihtiyaç duyar. Görüntü kaydedilmez veya saklanmaz.</string>
   <key>API_BASE_URL</key>
   <string>$(API_BASE_URL)</string>
-  <key>DEEPGRAM_API_KEY</key>
-  <string>$(DEEPGRAM_API_KEY)</string>
-  <key>MOCK_SUPABASE_JWT</key>
-  <string>$(MOCK_SUPABASE_JWT)</string>
+  <key>SUPABASE_URL</key>
+  <string>$(SUPABASE_URL)</string>
+  <key>SUPABASE_ANON_KEY</key>
+  <string>$(SUPABASE_ANON_KEY)</string>
 </dict>
 </plist>
-

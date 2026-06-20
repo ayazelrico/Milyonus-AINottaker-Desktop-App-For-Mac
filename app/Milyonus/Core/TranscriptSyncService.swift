@@ -64,7 +64,7 @@ final class TranscriptSyncService {
     guard let apiBaseURL = AppConfig.apiBaseURL else { return }
     let session = await authService.getCurrentSession()
     guard let token = session?.accessToken else {
-      throw AuthServiceError.missingDevelopmentToken
+      throw AuthServiceError.missingSession
     }
 
     let url = apiBaseURL
