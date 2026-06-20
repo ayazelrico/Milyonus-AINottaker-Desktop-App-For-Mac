@@ -1,0 +1,46 @@
+name: Backend CI
+
+on:
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
+
+jobs:
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        if: ${{ hashFiles('backend/package.json') != '' }}
+        working-directory: backend
+        run: npm install
+
+      - name: Lint
+        if: ${{ hashFiles('backend/package.json') != '' }}
+        working-directory: backend
+        run: npm run lint
+
+      - name: Build
+        if: ${{ hashFiles('backend/package.json') != '' }}
+        working-directory: backend
+        run: npm run build
+
+      - name: Backend placeholder
+        if: ${{ hashFiles('backend/package.json') == '' }}
+        run: echo "backend/package.json not present yet; backend CI will run after Phase 2."
