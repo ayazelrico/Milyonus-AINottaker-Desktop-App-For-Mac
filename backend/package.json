@@ -1,0 +1,30 @@
+{
+  "name": "milyonus-backend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.5.3",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.7.0",
+    "@supabase/supabase-js": "^2.86.0",
+    "next": "^16.0.10",
+    "openai": "^6.10.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zod": "^4.2.1"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.3",
+    "@types/node": "^24.10.2",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.2",
+    "eslint-config-next": "^16.0.10",
+    "typescript": "^5.9.3"
+  }
+}

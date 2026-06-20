@@ -1,0 +1,62 @@
+import SwiftUI
+
+struct SettingsView: View {
+  @EnvironmentObject private var appModel: AppModel
+
+  var body: some View {
+    TabView {
+      VStack(alignment: .leading, spacing: 18) {
+        LoginView(authService: appModel.authService)
+
+        Divider()
+
+        Picker("Transkripsiyon dili", selection: $appModel.languagePreference) {
+          ForEach(LanguagePreference.allCases) { language in
+            Text(language.title).tag(language)
+          }
+        }
+        .pickerStyle(.segmented)
+
+        Divider()
+
+        Text("Gizlilik & Görünürlük")
+          .font(.headline)
+
+        Text(visibilityDisclosure)
+          .font(.callout)
+          .foregroundStyle(.secondary)
+
+        Spacer()
+      }
+      .padding(24)
+      .tabItem {
+        Label("Genel", systemImage: "gearshape")
+      }
+
+      PermissionsOnboardingView(permissionsManager: appModel.permissionsManager)
+        .tabItem {
+          Label("İzinler", systemImage: "hand.raised")
+        }
+
+      VStack(alignment: .leading, spacing: 12) {
+        Text("Audio Debug")
+          .font(.headline)
+
+        if let error = appModel.audioCapture.captureError {
+          Text(error)
+            .foregroundStyle(.red)
+        }
+
+        List(appModel.audioCapture.debugMessages, id: \.self) { message in
+          Text(message)
+            .font(.system(.caption, design: .monospaced))
+        }
+      }
+      .padding(24)
+      .tabItem {
+        Label("Debug", systemImage: "waveform")
+      }
+    }
+  }
+}
+

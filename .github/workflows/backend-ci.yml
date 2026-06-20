@@ -26,20 +26,26 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Enable pnpm
+        if: ${{ hashFiles('backend/package.json') != '' }}
+        run: |
+          corepack enable
+          corepack prepare pnpm@11.5.3 --activate
+
       - name: Install dependencies
         if: ${{ hashFiles('backend/package.json') != '' }}
         working-directory: backend
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Lint
         if: ${{ hashFiles('backend/package.json') != '' }}
         working-directory: backend
-        run: npm run lint
+        run: pnpm lint
 
       - name: Build
         if: ${{ hashFiles('backend/package.json') != '' }}
         working-directory: backend
-        run: npm run build
+        run: pnpm build
 
       - name: Backend placeholder
         if: ${{ hashFiles('backend/package.json') == '' }}

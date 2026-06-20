@@ -1,0 +1,439 @@
+// !$*UTF8*$!
+{
+  archiveVersion = 1;
+  classes = {
+  };
+  objectVersion = 56;
+  objects = {
+
+/* Begin PBXBuildFile section */
+    A10000000000000000000001 /* MilyonusApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000001 /* MilyonusApp.swift */; };
+    A10000000000000000000002 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000002 /* AppModel.swift */; };
+    A10000000000000000000003 /* AssistRequestService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000003 /* AssistRequestService.swift */; };
+    A10000000000000000000004 /* AudioCaptureCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000004 /* AudioCaptureCoordinator.swift */; };
+    A10000000000000000000005 /* AudioChunk.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000005 /* AudioChunk.swift */; };
+    A10000000000000000000006 /* AudioFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000006 /* AudioFormat.swift */; };
+    A10000000000000000000007 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000007 /* AuthService.swift */; };
+    A10000000000000000000008 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000008 /* Config.swift */; };
+    A10000000000000000000009 /* DeepgramStreamingClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000009 /* DeepgramStreamingClient.swift */; };
+    A1000000000000000000000A /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000A /* HotkeyManager.swift */; };
+    A1000000000000000000000B /* MeetingAppDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000B /* MeetingAppDetector.swift */; };
+    A1000000000000000000000C /* MicrophoneCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000C /* MicrophoneCapture.swift */; };
+    A1000000000000000000000D /* PermissionsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000D /* PermissionsManager.swift */; };
+    A1000000000000000000000E /* SystemAudioCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000E /* SystemAudioCapture.swift */; };
+    A1000000000000000000000F /* TranscriptBufferManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000000F /* TranscriptBufferManager.swift */; };
+    A10000000000000000000010 /* TranscriptSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000010 /* TranscriptSegment.swift */; };
+    A10000000000000000000011 /* TranscriptSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000011 /* TranscriptSyncService.swift */; };
+    A10000000000000000000012 /* TranscriptionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000012 /* TranscriptionCoordinator.swift */; };
+    A10000000000000000000013 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000013 /* LoginView.swift */; };
+    A10000000000000000000014 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000014 /* MenuBarContentView.swift */; };
+    A10000000000000000000015 /* PermissionsOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000015 /* PermissionsOnboardingView.swift */; };
+    A10000000000000000000016 /* FloatingPanelController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000016 /* FloatingPanelController.swift */; };
+    A10000000000000000000017 /* FloatingPanelWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000017 /* FloatingPanelWindow.swift */; };
+    A10000000000000000000018 /* PanelContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000018 /* PanelContentView.swift */; };
+    A10000000000000000000019 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000019 /* SettingsView.swift */; };
+    A1000000000000000000001A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+    B10000000000000000000001 /* MilyonusApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/MilyonusApp.swift; sourceTree = "<group>"; };
+    B10000000000000000000002 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AppModel.swift; sourceTree = "<group>"; };
+    B10000000000000000000003 /* AssistRequestService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AssistRequestService.swift; sourceTree = "<group>"; };
+    B10000000000000000000004 /* AudioCaptureCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AudioCaptureCoordinator.swift; sourceTree = "<group>"; };
+    B10000000000000000000005 /* AudioChunk.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AudioChunk.swift; sourceTree = "<group>"; };
+    B10000000000000000000006 /* AudioFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AudioFormat.swift; sourceTree = "<group>"; };
+    B10000000000000000000007 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/AuthService.swift; sourceTree = "<group>"; };
+    B10000000000000000000008 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/Config.swift; sourceTree = "<group>"; };
+    B10000000000000000000009 /* DeepgramStreamingClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/DeepgramStreamingClient.swift; sourceTree = "<group>"; };
+    B1000000000000000000000A /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/HotkeyManager.swift; sourceTree = "<group>"; };
+    B1000000000000000000000B /* MeetingAppDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/MeetingAppDetector.swift; sourceTree = "<group>"; };
+    B1000000000000000000000C /* MicrophoneCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/MicrophoneCapture.swift; sourceTree = "<group>"; };
+    B1000000000000000000000D /* PermissionsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/PermissionsManager.swift; sourceTree = "<group>"; };
+    B1000000000000000000000E /* SystemAudioCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/SystemAudioCapture.swift; sourceTree = "<group>"; };
+    B1000000000000000000000F /* TranscriptBufferManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/TranscriptBufferManager.swift; sourceTree = "<group>"; };
+    B10000000000000000000010 /* TranscriptSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/TranscriptSegment.swift; sourceTree = "<group>"; };
+    B10000000000000000000011 /* TranscriptSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/TranscriptSyncService.swift; sourceTree = "<group>"; };
+    B10000000000000000000012 /* TranscriptionCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/TranscriptionCoordinator.swift; sourceTree = "<group>"; };
+    B10000000000000000000013 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Auth/LoginView.swift; sourceTree = "<group>"; };
+    B10000000000000000000014 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/MenuBar/MenuBarContentView.swift; sourceTree = "<group>"; };
+    B10000000000000000000015 /* PermissionsOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Onboarding/PermissionsOnboardingView.swift; sourceTree = "<group>"; };
+    B10000000000000000000016 /* FloatingPanelController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Panel/FloatingPanelController.swift; sourceTree = "<group>"; };
+    B10000000000000000000017 /* FloatingPanelWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Panel/FloatingPanelWindow.swift; sourceTree = "<group>"; };
+    B10000000000000000000018 /* PanelContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Panel/PanelContentView.swift; sourceTree = "<group>"; };
+    B10000000000000000000019 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Settings/SettingsView.swift; sourceTree = "<group>"; };
+    B1000000000000000000001A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Milyonus/Resources/Assets.xcassets; sourceTree = "<group>"; };
+    B1000000000000000000001B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Milyonus/Resources/Info.plist; sourceTree = "<group>"; };
+    B1000000000000000000001C /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Milyonus/Config/Debug.xcconfig; sourceTree = "<group>"; };
+    B1000000000000000000001D /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Milyonus/Config/Release.xcconfig; sourceTree = "<group>"; };
+    B1000000000000000000001E /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Milyonus/Secrets.xcconfig.example; sourceTree = "<group>"; };
+    B1000000000000000000001F /* Milyonus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Milyonus.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+    C10000000000000000000001 /* Frameworks */ = {
+      isa = PBXFrameworksBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+    D10000000000000000000001 = {
+      isa = PBXGroup;
+      children = (
+        D10000000000000000000003 /* Milyonus */,
+        D10000000000000000000002 /* Products */,
+      );
+      sourceTree = "<group>";
+    };
+    D10000000000000000000002 /* Products */ = {
+      isa = PBXGroup;
+      children = (
+        B1000000000000000000001F /* Milyonus.app */,
+      );
+      name = Products;
+      sourceTree = "<group>";
+    };
+    D10000000000000000000003 /* Milyonus */ = {
+      isa = PBXGroup;
+      children = (
+        B10000000000000000000001 /* MilyonusApp.swift */,
+        D10000000000000000000004 /* Core */,
+        D10000000000000000000005 /* UI */,
+        D10000000000000000000006 /* Resources */,
+        D10000000000000000000007 /* Config */,
+      );
+      name = Milyonus;
+      sourceTree = "<group>";
+    };
+    D10000000000000000000004 /* Core */ = {
+      isa = PBXGroup;
+      children = (
+        B10000000000000000000002 /* AppModel.swift */,
+        B10000000000000000000003 /* AssistRequestService.swift */,
+        B10000000000000000000004 /* AudioCaptureCoordinator.swift */,
+        B10000000000000000000005 /* AudioChunk.swift */,
+        B10000000000000000000006 /* AudioFormat.swift */,
+        B10000000000000000000007 /* AuthService.swift */,
+        B10000000000000000000008 /* Config.swift */,
+        B10000000000000000000009 /* DeepgramStreamingClient.swift */,
+        B1000000000000000000000A /* HotkeyManager.swift */,
+        B1000000000000000000000B /* MeetingAppDetector.swift */,
+        B1000000000000000000000C /* MicrophoneCapture.swift */,
+        B1000000000000000000000D /* PermissionsManager.swift */,
+        B1000000000000000000000E /* SystemAudioCapture.swift */,
+        B1000000000000000000000F /* TranscriptBufferManager.swift */,
+        B10000000000000000000010 /* TranscriptSegment.swift */,
+        B10000000000000000000011 /* TranscriptSyncService.swift */,
+        B10000000000000000000012 /* TranscriptionCoordinator.swift */,
+      );
+      name = Core;
+      sourceTree = "<group>";
+    };
+    D10000000000000000000005 /* UI */ = {
+      isa = PBXGroup;
+      children = (
+        B10000000000000000000013 /* LoginView.swift */,
+        B10000000000000000000014 /* MenuBarContentView.swift */,
+        B10000000000000000000015 /* PermissionsOnboardingView.swift */,
+        B10000000000000000000016 /* FloatingPanelController.swift */,
+        B10000000000000000000017 /* FloatingPanelWindow.swift */,
+        B10000000000000000000018 /* PanelContentView.swift */,
+        B10000000000000000000019 /* SettingsView.swift */,
+      );
+      name = UI;
+      sourceTree = "<group>";
+    };
+    D10000000000000000000006 /* Resources */ = {
+      isa = PBXGroup;
+      children = (
+        B1000000000000000000001A /* Assets.xcassets */,
+        B1000000000000000000001B /* Info.plist */,
+      );
+      name = Resources;
+      sourceTree = "<group>";
+    };
+    D10000000000000000000007 /* Config */ = {
+      isa = PBXGroup;
+      children = (
+        B1000000000000000000001C /* Debug.xcconfig */,
+        B1000000000000000000001D /* Release.xcconfig */,
+        B1000000000000000000001E /* Secrets.xcconfig.example */,
+      );
+      name = Config;
+      sourceTree = "<group>";
+    };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+    E10000000000000000000001 /* Milyonus */ = {
+      isa = PBXNativeTarget;
+      buildConfigurationList = H10000000000000000000002 /* Build configuration list for PBXNativeTarget "Milyonus" */;
+      buildPhases = (
+        F10000000000000000000001 /* Sources */,
+        C10000000000000000000001 /* Frameworks */,
+        F10000000000000000000002 /* Resources */,
+      );
+      buildRules = (
+      );
+      dependencies = (
+      );
+      name = Milyonus;
+      productName = Milyonus;
+      productReference = B1000000000000000000001F /* Milyonus.app */;
+      productType = "com.apple.product-type.application";
+    };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+    G10000000000000000000001 /* Project object */ = {
+      isa = PBXProject;
+      attributes = {
+        BuildIndependentTargetsInParallel = 1;
+        LastSwiftUpdateCheck = 1600;
+        LastUpgradeCheck = 1600;
+        TargetAttributes = {
+          E10000000000000000000001 = {
+            CreatedOnToolsVersion = 16.0;
+          };
+        };
+      };
+      buildConfigurationList = H10000000000000000000001 /* Build configuration list for PBXProject "Milyonus" */;
+      compatibilityVersion = "Xcode 14.0";
+      developmentRegion = en;
+      hasScannedForEncodings = 0;
+      knownRegions = (
+        en,
+        Base,
+      );
+      mainGroup = D10000000000000000000001;
+      productRefGroup = D10000000000000000000002 /* Products */;
+      projectDirPath = "";
+      projectRoot = "";
+      targets = (
+        E10000000000000000000001 /* Milyonus */,
+      );
+    };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+    F10000000000000000000002 /* Resources */ = {
+      isa = PBXResourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+        A1000000000000000000001A /* Assets.xcassets in Resources */,
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+    F10000000000000000000001 /* Sources */ = {
+      isa = PBXSourcesBuildPhase;
+      buildActionMask = 2147483647;
+      files = (
+        A10000000000000000000001 /* MilyonusApp.swift in Sources */,
+        A10000000000000000000002 /* AppModel.swift in Sources */,
+        A10000000000000000000003 /* AssistRequestService.swift in Sources */,
+        A10000000000000000000004 /* AudioCaptureCoordinator.swift in Sources */,
+        A10000000000000000000005 /* AudioChunk.swift in Sources */,
+        A10000000000000000000006 /* AudioFormat.swift in Sources */,
+        A10000000000000000000007 /* AuthService.swift in Sources */,
+        A10000000000000000000008 /* Config.swift in Sources */,
+        A10000000000000000000009 /* DeepgramStreamingClient.swift in Sources */,
+        A1000000000000000000000A /* HotkeyManager.swift in Sources */,
+        A1000000000000000000000B /* MeetingAppDetector.swift in Sources */,
+        A1000000000000000000000C /* MicrophoneCapture.swift in Sources */,
+        A1000000000000000000000D /* PermissionsManager.swift in Sources */,
+        A1000000000000000000000E /* SystemAudioCapture.swift in Sources */,
+        A1000000000000000000000F /* TranscriptBufferManager.swift in Sources */,
+        A10000000000000000000010 /* TranscriptSegment.swift in Sources */,
+        A10000000000000000000011 /* TranscriptSyncService.swift in Sources */,
+        A10000000000000000000012 /* TranscriptionCoordinator.swift in Sources */,
+        A10000000000000000000013 /* LoginView.swift in Sources */,
+        A10000000000000000000014 /* MenuBarContentView.swift in Sources */,
+        A10000000000000000000015 /* PermissionsOnboardingView.swift in Sources */,
+        A10000000000000000000016 /* FloatingPanelController.swift in Sources */,
+        A10000000000000000000017 /* FloatingPanelWindow.swift in Sources */,
+        A10000000000000000000018 /* PanelContentView.swift in Sources */,
+        A10000000000000000000019 /* SettingsView.swift in Sources */,
+      );
+      runOnlyForDeploymentPostprocessing = 0;
+    };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+    I10000000000000000000001 /* Debug */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        ALWAYS_SEARCH_USER_PATHS = NO;
+        CLANG_ANALYZER_NONNULL = YES;
+        CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+        CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+        CLANG_ENABLE_MODULES = YES;
+        CLANG_ENABLE_OBJC_ARC = YES;
+        CLANG_ENABLE_OBJC_WEAK = YES;
+        CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+        CLANG_WARN_BOOL_CONVERSION = YES;
+        CLANG_WARN_COMMA = YES;
+        CLANG_WARN_CONSTANT_CONVERSION = YES;
+        CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+        CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+        CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+        CLANG_WARN_EMPTY_BODY = YES;
+        CLANG_WARN_ENUM_CONVERSION = YES;
+        CLANG_WARN_INFINITE_RECURSION = YES;
+        CLANG_WARN_INT_CONVERSION = YES;
+        CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+        CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+        CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+        CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+        CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+        CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+        CLANG_WARN_STRICT_PROTOTYPES = YES;
+        CLANG_WARN_SUSPICIOUS_MOVE = YES;
+        CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+        CLANG_WARN_UNREACHABLE_CODE = YES;
+        CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+        COPY_PHASE_STRIP = NO;
+        DEBUG_INFORMATION_FORMAT = dwarf;
+        ENABLE_STRICT_OBJC_MSGSEND = YES;
+        ENABLE_TESTABILITY = YES;
+        GCC_C_LANGUAGE_STANDARD = gnu17;
+        GCC_DYNAMIC_NO_PIC = NO;
+        GCC_NO_COMMON_BLOCKS = YES;
+        GCC_OPTIMIZATION_LEVEL = 0;
+        GCC_PREPROCESSOR_DEFINITIONS = (
+          "DEBUG=1",
+          "$(inherited)",
+        );
+        GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+        GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+        GCC_WARN_UNDECLARED_SELECTOR = YES;
+        GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+        GCC_WARN_UNUSED_FUNCTION = YES;
+        GCC_WARN_UNUSED_VARIABLE = YES;
+        MACOSX_DEPLOYMENT_TARGET = 13.0;
+        MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+        MTL_FAST_MATH = YES;
+        ONLY_ACTIVE_ARCH = YES;
+        SDKROOT = macosx;
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+        SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+      };
+      name = Debug;
+    };
+    I10000000000000000000002 /* Release */ = {
+      isa = XCBuildConfiguration;
+      buildSettings = {
+        ALWAYS_SEARCH_USER_PATHS = NO;
+        CLANG_ANALYZER_NONNULL = YES;
+        CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+        CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+        CLANG_ENABLE_MODULES = YES;
+        CLANG_ENABLE_OBJC_ARC = YES;
+        CLANG_ENABLE_OBJC_WEAK = YES;
+        CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+        CLANG_WARN_BOOL_CONVERSION = YES;
+        CLANG_WARN_COMMA = YES;
+        CLANG_WARN_CONSTANT_CONVERSION = YES;
+        CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+        CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+        CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+        CLANG_WARN_EMPTY_BODY = YES;
+        CLANG_WARN_ENUM_CONVERSION = YES;
+        CLANG_WARN_INFINITE_RECURSION = YES;
+        CLANG_WARN_INT_CONVERSION = YES;
+        CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+        CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+        CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+        CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+        CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+        CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+        CLANG_WARN_STRICT_PROTOTYPES = YES;
+        CLANG_WARN_SUSPICIOUS_MOVE = YES;
+        CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+        CLANG_WARN_UNREACHABLE_CODE = YES;
+        CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+        COPY_PHASE_STRIP = NO;
+        DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+        ENABLE_NS_ASSERTIONS = NO;
+        ENABLE_STRICT_OBJC_MSGSEND = YES;
+        GCC_C_LANGUAGE_STANDARD = gnu17;
+        GCC_NO_COMMON_BLOCKS = YES;
+        GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+        GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+        GCC_WARN_UNDECLARED_SELECTOR = YES;
+        GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+        GCC_WARN_UNUSED_FUNCTION = YES;
+        GCC_WARN_UNUSED_VARIABLE = YES;
+        MACOSX_DEPLOYMENT_TARGET = 13.0;
+        MTL_ENABLE_DEBUG_INFO = NO;
+        MTL_FAST_MATH = YES;
+        SDKROOT = macosx;
+        SWIFT_COMPILATION_MODE = wholemodule;
+      };
+      name = Release;
+    };
+    I10000000000000000000003 /* Debug */ = {
+      isa = XCBuildConfiguration;
+      baseConfigurationReference = B1000000000000000000001C /* Debug.xcconfig */;
+      buildSettings = {
+        ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+        CODE_SIGN_STYLE = Automatic;
+        COMBINE_HIDPI_IMAGES = YES;
+        CURRENT_PROJECT_VERSION = 1;
+        DEVELOPMENT_ASSET_PATHS = "";
+        ENABLE_HARDENED_RUNTIME = YES;
+        GENERATE_INFOPLIST_FILE = NO;
+        INFOPLIST_FILE = Milyonus/Resources/Info.plist;
+        MARKETING_VERSION = 1.0;
+        PRODUCT_NAME = "$(TARGET_NAME)";
+      };
+      name = Debug;
+    };
+    I10000000000000000000004 /* Release */ = {
+      isa = XCBuildConfiguration;
+      baseConfigurationReference = B1000000000000000000001D /* Release.xcconfig */;
+      buildSettings = {
+        ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+        CODE_SIGN_STYLE = Automatic;
+        COMBINE_HIDPI_IMAGES = YES;
+        CURRENT_PROJECT_VERSION = 1;
+        DEVELOPMENT_ASSET_PATHS = "";
+        ENABLE_HARDENED_RUNTIME = YES;
+        GENERATE_INFOPLIST_FILE = NO;
+        INFOPLIST_FILE = Milyonus/Resources/Info.plist;
+        MARKETING_VERSION = 1.0;
+        PRODUCT_NAME = "$(TARGET_NAME)";
+      };
+      name = Release;
+    };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+    H10000000000000000000001 /* Build configuration list for PBXProject "Milyonus" */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (
+        I10000000000000000000001 /* Debug */,
+        I10000000000000000000002 /* Release */,
+      );
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+    H10000000000000000000002 /* Build configuration list for PBXNativeTarget "Milyonus" */ = {
+      isa = XCConfigurationList;
+      buildConfigurations = (
+        I10000000000000000000003 /* Debug */,
+        I10000000000000000000004 /* Release */,
+      );
+      defaultConfigurationIsVisible = 0;
+      defaultConfigurationName = Release;
+    };
+/* End XCConfigurationList section */
+  };
+  rootObject = G10000000000000000000001 /* Project object */;
+}
+

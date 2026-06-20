@@ -24,9 +24,12 @@ jobs:
       - name: Build app placeholder
         run: |
           if find app -maxdepth 3 -name "*.xcodeproj" | grep -q .; then
-            echo "Xcode project found. Phase 3 will replace this placeholder with a concrete xcodebuild command."
-            # Example for Phase 3:
-            # xcodebuild -project app/Milyonus.xcodeproj -scheme Milyonus -configuration Debug build
+            xcodebuild \
+              -project app/Milyonus.xcodeproj \
+              -scheme Milyonus \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO \
+              build
           else
             echo "No Xcode project present yet; app CI will run after Phase 3."
           fi

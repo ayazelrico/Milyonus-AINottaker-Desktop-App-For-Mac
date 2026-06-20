@@ -25,3 +25,6 @@ pnpm-debug.log*
 # Vercel
 .vercel/
 
+# Local app secrets
+app/Milyonus/Secrets.xcconfig
+app/Milyonus/Config/Secrets.xcconfig

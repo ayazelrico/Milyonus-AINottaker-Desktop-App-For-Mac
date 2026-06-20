@@ -12,15 +12,26 @@ Milyonus is a native macOS AI nottaker and live meeting assistant. It listens lo
 
 ## Development Setup
 
-Detailed setup steps will be filled in during later phases.
-
-Placeholder flow:
-
 1. Install Xcode for macOS app development.
-2. Install Node.js for the backend.
-3. Configure Supabase project credentials.
-4. Configure Vercel project environment variables.
-5. Run backend and app targets from their respective folders once they are added.
+2. Install Node.js and pnpm for the backend.
+3. Configure Supabase with `supabase/SETUP.md`.
+4. Configure backend environment variables from `backend/.env.example`.
+5. Start the backend:
+
+   ```bash
+   cd backend
+   pnpm install
+   pnpm dev
+   ```
+
+6. Configure the macOS app:
+
+   ```bash
+   cp app/Milyonus/Secrets.xcconfig.example app/Milyonus/Secrets.xcconfig
+   open app/Milyonus.xcodeproj
+   ```
+
+7. Run the `Milyonus` scheme from Xcode on a real Mac and grant Screen Recording and Microphone permissions.
 
 ## Stack
 
@@ -30,7 +41,12 @@ Placeholder flow:
 - Speech-to-text: Deepgram streaming STT.
 - LLM: OpenAI GPT-4o through the backend only.
 
+## Security Notes
+
+- `OPENAI_API_KEY`, `DEEPGRAM_API_KEY`, and `SUPABASE_SERVICE_ROLE_KEY` are server-only secrets.
+- The Swift app currently has a development-only Deepgram key fallback for local testing. Production must use short-lived backend-issued Deepgram credentials before shipping.
+- macOS 15+ cannot guarantee that a floating panel is hidden from every screen sharing implementation. Milyonus uses `sharingType = .none` plus Cmd+\ flash-hide, and tells the user this limitation plainly.
+
 ## Branch Protection Recommendation
 
 Protect `main` with pull requests required, at least one approving review, and required passing CI checks before merge.
-

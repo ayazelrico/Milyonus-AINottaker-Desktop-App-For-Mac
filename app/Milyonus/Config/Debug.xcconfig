@@ -1,0 +1,8 @@
+#include? "../Secrets.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.milyonus.app
+MACOSX_DEPLOYMENT_TARGET = 13.0
+SWIFT_VERSION = 5.0
+API_BASE_URL = http:/$()/localhost:3000
+DEEPGRAM_API_KEY =
+MOCK_SUPABASE_JWT =
