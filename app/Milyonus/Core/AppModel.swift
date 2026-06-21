@@ -84,6 +84,18 @@ final class AppModel: ObservableObject {
   func startSession() async {
     guard !isSessionActive else { return }
 
+    #if DEBUG
+      // Dev mode: login kontrolü atlanıyor.
+      let isAuthenticated = true
+    #else
+      let isAuthenticated = await authService.getCurrentSession() != nil
+    #endif
+
+    guard isAuthenticated else {
+      print("[Session] Not authenticated, skipping in release")
+      return
+    }
+
     guard await requestMissingPermissionsForSessionStart() else {
       return
     }

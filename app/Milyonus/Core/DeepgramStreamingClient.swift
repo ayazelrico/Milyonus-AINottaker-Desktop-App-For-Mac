@@ -79,6 +79,17 @@ final class DeepgramStreamingClient {
   }
 
   private func fetchShortLivedToken() async throws -> DeepgramTokenGrant {
+    #if DEBUG
+      if let devKey = devDeepgramKey() {
+        print("[Deepgram] Dev mode: using key from xcconfig")
+        return DeepgramTokenGrant(
+          token: devKey,
+          authorizationScheme: "Token",
+          expiresAt: Date().addingTimeInterval(24 * 60 * 60)
+        )
+      }
+    #endif
+
     guard let apiBaseURL = AppConfig.apiBaseURL else {
       throw DeepgramStreamingError.missingAPIBaseURL
     }
@@ -111,7 +122,11 @@ final class DeepgramStreamingClient {
     }
 
     print("[Deepgram] Token received, expires at: \(expiresAt)")
-    return DeepgramTokenGrant(token: tokenResponse.token, expiresAt: expiresAt)
+    return DeepgramTokenGrant(
+      token: tokenResponse.token,
+      authorizationScheme: "Bearer",
+      expiresAt: expiresAt
+    )
   }
 
   private func replaceSocket(using grant: DeepgramTokenGrant) async throws {
@@ -122,7 +137,7 @@ final class DeepgramStreamingClient {
     print("[Deepgram] WebSocket connecting to: wss://api.deepgram.com/v1/listen")
 
     var request = URLRequest(url: url)
-    request.addValue("Bearer \(grant.token)", forHTTPHeaderField: "Authorization")
+    request.addValue(grant.authorizationHeaderValue, forHTTPHeaderField: "Authorization")
 
     let nextTask = URLSession.shared.webSocketTask(with: request)
     let previousTask = task
@@ -252,6 +267,24 @@ final class DeepgramStreamingClient {
     }
   }
 
+  #if DEBUG
+    private func devDeepgramKey() -> String? {
+      guard let rawValue = Bundle.main.infoDictionary?["DEEPGRAM_DEV_KEY"] as? String else {
+        return nil
+      }
+
+      let key = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+      guard !key.isEmpty,
+            key != "DEV_ONLY",
+            !key.hasPrefix("$("),
+            !key.hasPrefix("BURAYA_") else {
+        return nil
+      }
+
+      return key
+    }
+  #endif
+
   private func handleTranscriptPayload(_ text: String) {
     guard let data = text.data(using: .utf8),
           let response = try? JSONDecoder().decode(DeepgramResponse.self, from: data),
@@ -278,7 +311,12 @@ final class DeepgramStreamingClient {
 
 private struct DeepgramTokenGrant {
   let token: String
+  let authorizationScheme: String
   let expiresAt: Date
+
+  var authorizationHeaderValue: String {
+    "\(authorizationScheme) \(token)"
+  }
 }
 
 private struct DeepgramTokenResponse: Decodable {

@@ -41,6 +41,8 @@
   <string>Milyonus, toplantı sesini anlayabilmek için ekran kaydı iznine ihtiyaç duyar.</string>
   <key>API_BASE_URL</key>
   <string>$(API_BASE_URL)</string>
+  <key>DEEPGRAM_DEV_KEY</key>
+  <string>$(DEEPGRAM_DEV_KEY)</string>
   <key>SUPABASE_URL</key>
   <string>$(SUPABASE_URL)</string>
   <key>SUPABASE_ANON_KEY</key>

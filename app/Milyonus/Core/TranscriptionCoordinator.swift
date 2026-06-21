@@ -56,10 +56,22 @@ final class TranscriptionCoordinator: ObservableObject {
       try await systemClient.connect()
       try await microphoneClient.connect()
       try await audioCaptureCoordinator.startCapture()
+    } catch DeepgramStreamingError.missingSessionToken {
+      #if DEBUG
+        print("[Deepgram] Dev mode: auth error ignored, check DEEPGRAM_DEV_KEY in Secrets.xcconfig")
+
+        do {
+          try await audioCaptureCoordinator.startCapture()
+        } catch {
+          await cleanUpFailedStart(systemClient: systemClient, microphoneClient: microphoneClient)
+          throw error
+        }
+      #else
+        await cleanUpFailedStart(systemClient: systemClient, microphoneClient: microphoneClient)
+        throw DeepgramStreamingError.missingSessionToken
+      #endif
     } catch {
-      await systemClient.close()
-      await microphoneClient.close()
-      await audioCaptureCoordinator.stopCapture()
+      await cleanUpFailedStart(systemClient: systemClient, microphoneClient: microphoneClient)
       throw error
     }
 
@@ -102,6 +114,15 @@ final class TranscriptionCoordinator: ObservableObject {
     systemClient = nil
     microphoneClient = nil
     isTranscribing = false
+  }
+
+  private func cleanUpFailedStart(
+    systemClient: DeepgramStreamingClient,
+    microphoneClient: DeepgramStreamingClient
+  ) async {
+    await systemClient.close()
+    await microphoneClient.close()
+    await audioCaptureCoordinator.stopCapture()
   }
 
   private func configure(client: DeepgramStreamingClient) {
