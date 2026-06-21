@@ -38,7 +38,7 @@ final class DeepgramStreamingClient {
   private let tokenEndpointPath = "api/deepgram-token"
   private var task: URLSessionWebSocketTask?
   private var receiveTask: Task<Void, Never>?
-  private var tokenRenewalTask: Task<Void, Never>?
+  private var tokenRenewalTimer: Timer?
   private var sessionStartedAt = Date()
   private var reconnectAttempts = 0
   private var isClosed = false
@@ -71,8 +71,7 @@ final class DeepgramStreamingClient {
 
   func close() async {
     isClosed = true
-    tokenRenewalTask?.cancel()
-    tokenRenewalTask = nil
+    invalidateTokenRenewalTimer()
     receiveTask?.cancel()
     receiveTask = nil
     task?.cancel(with: .goingAway, reason: nil)
@@ -215,15 +214,24 @@ final class DeepgramStreamingClient {
   }
 
   private func scheduleTokenRenewal(expiresAt: Date) {
-    tokenRenewalTask?.cancel()
-
     let renewalInterval = max(expiresAt.timeIntervalSinceNow - 60, 0)
-    tokenRenewalTask = Task { [weak self] in
-      let nanoseconds = UInt64(renewalInterval * 1_000_000_000)
-      try? await Task.sleep(nanoseconds: nanoseconds)
 
-      guard !Task.isCancelled else { return }
-      await self?.renewTokenAndReconnect()
+    DispatchQueue.main.async { [weak self] in
+      guard let self else { return }
+
+      self.tokenRenewalTimer?.invalidate()
+      self.tokenRenewalTimer = Timer.scheduledTimer(withTimeInterval: renewalInterval, repeats: false) { [weak self] _ in
+        Task {
+          await self?.renewTokenAndReconnect()
+        }
+      }
+    }
+  }
+
+  private func invalidateTokenRenewalTimer() {
+    DispatchQueue.main.async { [weak self] in
+      self?.tokenRenewalTimer?.invalidate()
+      self?.tokenRenewalTimer = nil
     }
   }
 
