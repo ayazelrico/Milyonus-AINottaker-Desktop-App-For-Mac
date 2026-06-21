@@ -5,49 +5,64 @@ struct MenuBarContentView: View {
   @EnvironmentObject private var appModel: AppModel
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      Text("Milyonus")
-        .font(.headline)
+    Text("Milyonus")
+      .font(.headline)
 
-      Text(appModel.statusMessage)
-        .font(.caption)
-        .foregroundStyle(.secondary)
+    Text(appModel.statusMessage)
+      .font(.caption)
+      .foregroundStyle(.secondary)
 
-      Divider()
+    Divider()
 
-      if appModel.isSessionActive {
-        Button("End Session") {
-          Task { await appModel.endSession() }
-        }
-      } else {
-        Button("Start Session") {
-          Task { await appModel.startSession() }
+    if appModel.isSessionActive {
+      Button("End Session") {
+        logTap("End Session")
+        Task { @MainActor in
+          await appModel.endSession()
         }
       }
-
-      Button(appModel.panelController.isVisible ? "Hide Panel" : "Show Panel") {
-        appModel.togglePanel()
-      }
-
-      Button("Check Meeting App") {
-        appModel.checkForMeetingApp()
-      }
-
-      Divider()
-
-      Button("Settings...") {
-        appModel.openSettings()
-      }
-
-      Button("Sign Out") {
-        Task { await appModel.signOut() }
-      }
-
-      Button("Quit Milyonus") {
-        NSApp.terminate(nil)
+    } else {
+      Button("Start Session") {
+        logTap("Start Session")
+        Task { @MainActor in
+          await appModel.startSession()
+        }
       }
     }
-    .padding(.vertical, 6)
+
+    Button(appModel.panelController.isVisible ? "Hide Panel" : "Show Panel") {
+      logTap(appModel.panelController.isVisible ? "Hide Panel" : "Show Panel")
+      appModel.togglePanel()
+    }
+
+    Button("Check Meeting App") {
+      logTap("Check Meeting App")
+      appModel.checkForMeetingApp()
+    }
+
+    Divider()
+
+    Button("Settings...") {
+      logTap("Settings")
+      appModel.openSettings()
+    }
+
+    Button("Sign Out") {
+      logTap("Sign Out")
+      Task { @MainActor in
+        await appModel.signOut()
+      }
+    }
+
+    Button("Quit Milyonus") {
+      logTap("Quit Milyonus")
+      NSApplication.shared.terminate(nil)
+    }
+  }
+
+  private func logTap(_ item: String) {
+    #if DEBUG
+      print("[MenuBar] \(item) tapped")
+    #endif
   }
 }
-

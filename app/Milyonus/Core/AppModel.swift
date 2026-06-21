@@ -190,6 +190,8 @@ final class AppModel: ObservableObject {
   }
 
   func openSettings() {
+    // The app still targets macOS 13, so use the AppKit settings action instead of
+    // SwiftUI's newer openSettings environment action.
     NSApp.sendAction(Selector(("showSettingsWindow:")), to: nil, from: nil)
     NSApp.activate(ignoringOtherApps: true)
   }
