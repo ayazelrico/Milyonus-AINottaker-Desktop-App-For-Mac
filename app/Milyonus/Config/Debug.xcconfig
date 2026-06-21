@@ -1,8 +1,9 @@
-#include? "../Secrets.xcconfig"
-
 PRODUCT_BUNDLE_IDENTIFIER = com.milyonus.app
 MACOSX_DEPLOYMENT_TARGET = 13.0
 SWIFT_VERSION = 5.0
-API_BASE_URL = http:/$()/localhost:3000
+API_BASE_URL = https:/$()/milyonus-ai-nottaker-desktop-app-fo-five.vercel.app
 SUPABASE_URL =
 SUPABASE_ANON_KEY =
+DEEPGRAM_DEV_KEY = DEV_ONLY
+
+#include? "../Secrets.xcconfig"
