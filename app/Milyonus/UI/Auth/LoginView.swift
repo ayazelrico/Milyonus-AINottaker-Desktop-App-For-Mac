@@ -8,6 +8,8 @@ struct LoginView: View {
 
   var body: some View {
     VStack(alignment: .leading, spacing: 12) {
+      MilyonusLogoView(size: 64)
+
       Text("Giriş")
         .font(.headline)
 

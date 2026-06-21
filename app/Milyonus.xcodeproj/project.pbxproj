@@ -35,6 +35,7 @@
     A1000000000000000000001A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1000000000000000000001A /* Assets.xcassets */; };
     A1000000000000000000001B /* BackendConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* BackendConnectionTester.swift */; };
     A1000000000000000000001C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = K10000000000000000000001 /* Supabase */; };
+    A1000000000000000000001D /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* TopBarView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +71,7 @@
     B1000000000000000000001E /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Milyonus/Secrets.xcconfig.example; sourceTree = "<group>"; };
     B1000000000000000000001F /* Milyonus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Milyonus.app; sourceTree = BUILT_PRODUCTS_DIR; };
     B10000000000000000000020 /* BackendConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/BackendConnectionTester.swift; sourceTree = "<group>"; };
+    B10000000000000000000021 /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Panel/TopBarView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -146,6 +148,7 @@
         B10000000000000000000016 /* FloatingPanelController.swift */,
         B10000000000000000000017 /* FloatingPanelWindow.swift */,
         B10000000000000000000018 /* PanelContentView.swift */,
+        B10000000000000000000021 /* TopBarView.swift */,
         B10000000000000000000019 /* SettingsView.swift */,
       );
       name = UI;
@@ -271,6 +274,7 @@
         A10000000000000000000018 /* PanelContentView.swift in Sources */,
         A10000000000000000000019 /* SettingsView.swift in Sources */,
         A1000000000000000000001B /* BackendConnectionTester.swift in Sources */,
+        A1000000000000000000001D /* TopBarView.swift in Sources */,
       );
       runOnlyForDeploymentPostprocessing = 0;
     };

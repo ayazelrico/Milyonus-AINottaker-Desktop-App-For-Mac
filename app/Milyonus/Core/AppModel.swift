@@ -13,6 +13,7 @@ final class AppModel: ObservableObject {
   @Published var pendingQuestion = ""
   @Published var languagePreference: LanguagePreference = .auto
   @Published var backendConnectionStatus: String?
+  @Published var sessionStartedAt: Date?
 
   let authService: AuthServiceProtocol
   let permissionsManager = PermissionsManager()
@@ -34,14 +35,6 @@ final class AppModel: ObservableObject {
     transcriptBuffer: transcriptBuffer
   )
   private var runtimeStarted = false
-
-  var menuBarSystemImage: String {
-    if isSessionActive {
-      return "waveform.circle.fill"
-    }
-
-    return "waveform.circle"
-  }
 
   var panelErrorMessage: String? {
     audioCapture.captureError ?? assistError
@@ -86,15 +79,14 @@ final class AppModel: ObservableObject {
 
     #if DEBUG
       // Dev mode: login kontrolü atlanıyor.
-      let isAuthenticated = true
     #else
       let isAuthenticated = await authService.getCurrentSession() != nil
-    #endif
 
-    guard isAuthenticated else {
-      print("[Session] Not authenticated, skipping in release")
-      return
-    }
+      guard isAuthenticated else {
+        print("[Session] Not authenticated, skipping in release")
+        return
+      }
+    #endif
 
     guard await requestMissingPermissionsForSessionStart() else {
       return
@@ -107,10 +99,12 @@ final class AppModel: ObservableObject {
     do {
       try await transcriptionCoordinator.start(sessionID: sessionID, language: languagePreference)
       isSessionActive = true
+      sessionStartedAt = Date()
       statusMessage = "Dinleniyor..."
       panelController.show()
     } catch {
       currentSessionID = nil
+      sessionStartedAt = nil
       statusMessage = "Başlatılamadı"
       assistError = runtimeErrorMessage(for: error)
       panelController.show()
@@ -158,6 +152,7 @@ final class AppModel: ObservableObject {
     isSessionActive = false
     statusMessage = "Duraklatıldı"
     currentSessionID = nil
+    sessionStartedAt = nil
   }
 
   func signOut() async {
@@ -199,6 +194,9 @@ final class AppModel: ObservableObject {
   }
 
   func requestAssist(question: String?) async {
+    panelController.show()
+    panelController.expandChat()
+
     guard let sessionID = currentSessionID else {
       assistError = "Önce bir oturum başlat."
       return
@@ -254,6 +252,7 @@ final class AppModel: ObservableObject {
     statusMessage = "Duraklatıldı"
     isSessionActive = false
     currentSessionID = nil
+    sessionStartedAt = nil
     panelController.show()
   }
 

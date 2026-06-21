@@ -5,13 +5,16 @@ import Combine
 
 @MainActor
 final class FloatingPanelController: ObservableObject {
+  static let barContentSize = NSSize(width: 436, height: 58)
+  static let chatContentSize = NSSize(width: 620, height: 430)
+
   @Published private(set) var isVisible: Bool
   @Published private(set) var isCollapsed: Bool
 
   private enum DefaultsKey {
-    static let frame = "panel.frame"
+    static let frame = "panel.frame.v2"
     static let visible = "panel.visible"
-    static let collapsed = "panel.collapsed"
+    static let collapsed = "panel.collapsed.v2"
   }
 
   private var window: FloatingPanelWindow?
@@ -19,7 +22,7 @@ final class FloatingPanelController: ObservableObject {
 
   init() {
     isVisible = UserDefaults.standard.object(forKey: DefaultsKey.visible) as? Bool ?? true
-    isCollapsed = UserDefaults.standard.bool(forKey: DefaultsKey.collapsed)
+    isCollapsed = UserDefaults.standard.object(forKey: DefaultsKey.collapsed) as? Bool ?? true
   }
 
   func install(appModel: AppModel) {
@@ -71,15 +74,32 @@ final class FloatingPanelController: ObservableObject {
     isCollapsed.toggle()
     persistState()
     appModel?.panelStateDidChange()
+    setChatPanelVisible(!isCollapsed)
+  }
 
+  func expandChat() {
+    guard isCollapsed else { return }
+
+    isCollapsed = false
+    persistState()
+    appModel?.panelStateDidChange()
+  }
+
+  func collapseChat() {
+    guard !isCollapsed else { return }
+
+    isCollapsed = true
+    persistState()
+    appModel?.panelStateDidChange()
+    setChatPanelVisible(false)
+  }
+
+  func setChatPanelVisible(_ visible: Bool) {
     guard let window else { return }
 
-    if isCollapsed {
-      saveFrame()
-      window.setContentSize(NSSize(width: 72, height: 72))
-    } else {
-      window.setContentSize(NSSize(width: 360, height: 480))
-    }
+    let size = visible ? Self.chatContentSize : Self.barContentSize
+    let frame = resizedFramePreservingTopCenter(for: size, currentFrame: window.frame)
+    window.setFrame(frame, display: true, animate: true)
   }
 
   private func restoredFrame() -> NSRect {
@@ -92,11 +112,28 @@ final class FloatingPanelController: ObservableObject {
     }
 
     let screenFrame = NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+    return topCenteredFrame(in: screenFrame, size: Self.barContentSize)
+  }
+
+  private func topCenteredFrame(in screenFrame: NSRect, size: NSSize) -> NSRect {
     return NSRect(
-      x: screenFrame.maxX - 400,
-      y: screenFrame.maxY - 520,
-      width: isCollapsed ? 72 : 360,
-      height: isCollapsed ? 72 : 480
+      x: screenFrame.midX - (size.width / 2),
+      y: screenFrame.maxY - size.height - 14,
+      width: size.width,
+      height: size.height
+    )
+  }
+
+  private func resizedFramePreservingTopCenter(for size: NSSize, currentFrame: NSRect) -> NSRect {
+    let screenFrame = window?.screen?.visibleFrame ?? NSScreen.main?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
+    let centerX = currentFrame.isEmpty ? screenFrame.midX : currentFrame.midX
+    let topY = currentFrame.isEmpty ? screenFrame.maxY - 14 : currentFrame.maxY
+
+    return NSRect(
+      x: centerX - (size.width / 2),
+      y: topY - size.height,
+      width: size.width,
+      height: size.height
     )
   }
 

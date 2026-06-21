@@ -6,6 +6,21 @@ struct SettingsView: View {
   var body: some View {
     TabView {
       VStack(alignment: .leading, spacing: 18) {
+        HStack(spacing: 14) {
+          MilyonusLogoView(size: 64)
+
+          VStack(alignment: .leading, spacing: 4) {
+            Text("Milyonus")
+              .font(.title2.bold())
+
+            Text("Canlı toplantı asistanı")
+              .font(.callout)
+              .foregroundStyle(.secondary)
+          }
+        }
+
+        Divider()
+
         LoginView(authService: appModel.authService) {
           Task { await appModel.signInWithGoogle() }
         }

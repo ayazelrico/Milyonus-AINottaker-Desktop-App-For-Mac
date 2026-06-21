@@ -2,115 +2,239 @@ import SwiftUI
 
 struct PanelContentView: View {
   @EnvironmentObject private var appModel: AppModel
-  @State private var draftQuestion = ""
+  @State private var lastSubmittedQuestion: String?
+
+  private var hasChatContent: Bool {
+    appModel.isAssistStreaming ||
+      !appModel.assistResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+      lastSubmittedQuestion != nil ||
+      appModel.panelErrorMessage != nil
+  }
+
+  private var showsChatPanel: Bool {
+    hasChatContent && !appModel.panelController.isCollapsed
+  }
 
   var body: some View {
-    Group {
-      if appModel.panelController.isCollapsed {
-        collapsedView
-      } else {
-        expandedView
+    VStack(spacing: 10) {
+      TopBarView(
+        onAsk: askAI,
+        onToggleChat: toggleChat
+      )
+      .environmentObject(appModel)
+      .frame(maxWidth: .infinity)
+
+      if showsChatPanel {
+        chatPanel
+          .transition(.move(edge: .top).combined(with: .opacity))
       }
     }
-    .background(.regularMaterial)
-  }
-
-  private var collapsedView: some View {
-    Button {
-      appModel.collapsePanel()
-    } label: {
-      Image(systemName: appModel.isSessionActive ? "waveform.circle.fill" : "waveform.circle")
-        .font(.system(size: 28, weight: .semibold))
-        .frame(width: 72, height: 72)
+    .padding(.top, 2)
+    .padding(.horizontal, 8)
+    .padding(.bottom, showsChatPanel ? 8 : 2)
+    .frame(
+      width: showsChatPanel ? FloatingPanelController.chatContentSize.width : FloatingPanelController.barContentSize.width,
+      height: showsChatPanel ? FloatingPanelController.chatContentSize.height : FloatingPanelController.barContentSize.height,
+      alignment: .top
+    )
+    .background(Color.clear)
+    .animation(.easeOut(duration: 0.25), value: showsChatPanel)
+    .onAppear(perform: updateWindowLayout)
+    .onChange(of: showsChatPanel) { _ in
+      updateWindowLayout()
     }
-    .buttonStyle(.plain)
-    .help("Paneli genişlet")
   }
 
-  private var expandedView: some View {
-    VStack(spacing: 0) {
-      header
-
-      Divider()
-
+  private var chatPanel: some View {
+    VStack(alignment: .leading, spacing: 14) {
       ScrollView {
         VStack(alignment: .leading, spacing: 12) {
-          if appModel.assistResponse.isEmpty && !appModel.isAssistStreaming {
-            Text("Cmd+Enter ile son konuşmadan öneri al.")
-              .foregroundStyle(.secondary)
-              .frame(maxWidth: .infinity, alignment: .leading)
-          } else {
-            Text(appModel.assistResponse)
-              .textSelection(.enabled)
-              .frame(maxWidth: .infinity, alignment: .leading)
+          if let lastSubmittedQuestion {
+            HStack {
+              Spacer(minLength: 48)
+
+              Text(lastSubmittedQuestion)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                .background {
+                  RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(
+                      LinearGradient(
+                        colors: [.cyan.opacity(0.45), .blue.opacity(0.62)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                      )
+                    )
+                }
+                .textSelection(.enabled)
+            }
           }
 
-          if appModel.isAssistStreaming {
-            Text("Düşünüyor...")
-              .font(.caption)
-              .foregroundStyle(.secondary)
-          }
+          aiResponseView
 
           if let error = appModel.panelErrorMessage {
             Text(error)
-              .font(.caption)
-              .foregroundStyle(.red)
+              .font(.system(size: 12, weight: .medium))
+              .foregroundStyle(.red.opacity(0.92))
+              .frame(maxWidth: .infinity, alignment: .leading)
           }
         }
-        .padding(14)
+        .padding(.trailing, 2)
+      }
+      .frame(maxHeight: 230)
+
+      actionChips
+
+      composer
+    }
+    .padding(16)
+    .frame(maxWidth: .infinity, alignment: .leading)
+    .background {
+      GlassRoundedBackground(cornerRadius: 18, overlayOpacity: 0.55)
+    }
+    .shadow(color: .black.opacity(0.28), radius: 18, x: 0, y: 12)
+  }
+
+  private var aiResponseView: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack(spacing: 8) {
+        MilyonusLogoView(size: 18)
+
+        Text("Milyonus")
+          .font(.system(size: 12, weight: .semibold))
+          .foregroundStyle(.white.opacity(0.8))
+
+        if appModel.isAssistStreaming {
+          ProgressView()
+            .controlSize(.small)
+            .scaleEffect(0.62)
+        }
       }
 
-      Divider()
+      if appModel.assistResponse.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        Text(appModel.isAssistStreaming ? "Yanıt hazırlanıyor..." : "Cmd+Enter ile son konuşmadan öneri al.")
+          .font(.system(size: 13, weight: .medium))
+          .foregroundStyle(.white.opacity(0.58))
+      } else {
+        Text(appModel.assistResponse)
+          .font(.system(size: 13, weight: .regular))
+          .lineSpacing(4)
+          .foregroundStyle(.white.opacity(0.94))
+          .textSelection(.enabled)
+          .frame(maxWidth: .infinity, alignment: .leading)
+      }
+    }
+  }
 
-      HStack(spacing: 8) {
-        TextField("örn: rakibimiz ne dedi?", text: $draftQuestion)
-          .textFieldStyle(.roundedBorder)
-          .onSubmit(send)
-
+  private var actionChips: some View {
+    HStack(spacing: 8) {
+      // TODO: Dedicated backend prompt templates can replace these UI-only modes later.
+      ForEach(assistChips, id: \.self) { chip in
         Button {
-          send()
+          send(question: chip.prompt)
         } label: {
-          Image(systemName: "arrow.up.circle.fill")
+          Text(chip.title)
+            .font(.system(size: 11, weight: .semibold))
+            .foregroundStyle(.white.opacity(0.84))
+            .lineLimit(1)
+            .padding(.horizontal, 10)
+            .frame(height: 26)
+            .background {
+              Capsule()
+                .fill(.white.opacity(0.08))
+            }
         }
         .buttonStyle(.plain)
         .disabled(appModel.isAssistStreaming)
-        .help("Soruyu gönder")
       }
-      .padding(12)
     }
-    .frame(width: 360, height: 480)
   }
 
-  private var header: some View {
-    HStack(spacing: 10) {
-      RoundedRectangle(cornerRadius: 2)
-        .fill(.secondary.opacity(0.5))
-        .frame(width: 34, height: 4)
-
-      Text(appModel.isSessionActive ? "Dinleniyor..." : "Duraklatıldı")
-        .font(.caption)
-        .foregroundStyle(.secondary)
-
-      Spacer()
+  private var composer: some View {
+    HStack(spacing: 8) {
+      TextField("örn: rakibimiz ne dedi?", text: $appModel.pendingQuestion)
+        .textFieldStyle(.plain)
+        .font(.system(size: 13, weight: .medium))
+        .foregroundStyle(.white.opacity(0.92))
+        .padding(.horizontal, 12)
+        .frame(height: 36)
+        .background {
+          Capsule()
+            .fill(.black.opacity(0.28))
+            .overlay {
+              Capsule()
+                .stroke(.white.opacity(0.10), lineWidth: 1)
+            }
+        }
+        .onSubmit {
+          send(question: appModel.pendingQuestion)
+        }
 
       Button {
-        appModel.collapsePanel()
+        send(question: appModel.pendingQuestion)
       } label: {
-        Image(systemName: "circle.grid.cross")
+        Image(systemName: "arrow.up")
+          .font(.system(size: 12, weight: .bold))
+          .foregroundStyle(.white)
+          .frame(width: 34, height: 34)
+          .background {
+            Circle()
+              .fill(Color.cyan.opacity(appModel.isAssistStreaming ? 0.22 : 0.42))
+          }
       }
       .buttonStyle(.plain)
-      .help("Bubble'a küçült")
+      .disabled(appModel.isAssistStreaming)
+      .help("Soruyu gönder")
     }
-    .padding(12)
   }
 
-  private func send() {
-    let question = draftQuestion
-    Task {
-      await appModel.requestAssist(question: question)
-      await MainActor.run {
-        draftQuestion = ""
-      }
+  private func askAI() {
+    let trimmedQuestion = appModel.pendingQuestion.trimmingCharacters(in: .whitespacesAndNewlines)
+    lastSubmittedQuestion = trimmedQuestion.isEmpty ? nil : trimmedQuestion
+    appModel.panelController.expandChat()
+
+    Task { @MainActor in
+      await appModel.triggerAssistFromHotkey()
     }
   }
+
+  private func toggleChat() {
+    if appModel.panelController.isCollapsed {
+      appModel.panelController.expandChat()
+    } else {
+      appModel.panelController.collapseChat()
+    }
+
+    updateWindowLayout()
+  }
+
+  private func send(question: String) {
+    let trimmedQuestion = question.trimmingCharacters(in: .whitespacesAndNewlines)
+    lastSubmittedQuestion = trimmedQuestion.isEmpty ? nil : trimmedQuestion
+    appModel.panelController.expandChat()
+
+    Task { @MainActor in
+      await appModel.requestAssist(question: trimmedQuestion)
+    }
+  }
+
+  private func updateWindowLayout() {
+    appModel.panelController.setChatPanelVisible(showsChatPanel)
+  }
+
+  private var assistChips: [AssistChip] {
+    [
+      AssistChip(title: "Assist", prompt: ""),
+      AssistChip(title: "What should I say?", prompt: "What should I say next?"),
+      AssistChip(title: "Follow-up questions", prompt: "Suggest follow-up questions."),
+      AssistChip(title: "Recap", prompt: "Recap the meeting so far.")
+    ]
+  }
+}
+
+private struct AssistChip: Hashable {
+  let title: String
+  let prompt: String
 }

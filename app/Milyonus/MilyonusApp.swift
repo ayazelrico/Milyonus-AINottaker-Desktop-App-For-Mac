@@ -25,7 +25,7 @@ struct MilyonusApp: App {
   }
 
   var body: some Scene {
-    MenuBarExtra("Milyonus", systemImage: appModel.menuBarSystemImage) {
+    MenuBarExtra("Milyonus", image: "MilyonusLogoMenuBar") {
       MenuBarContentView()
         .environmentObject(appModel)
         .onOpenURL { url in
