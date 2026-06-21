@@ -42,9 +42,15 @@ struct MenuBarContentView: View {
 
     Divider()
 
-    Button("Settings...") {
-      logTap("Settings")
-      appModel.openSettings()
+    if #available(macOS 14.0, *) {
+      SettingsLink {
+        Text("Settings...")
+      }
+    } else {
+      Button("Settings...") {
+        logTap("Settings")
+        appModel.openSettings()
+      }
     }
 
     Button("Sign Out") {

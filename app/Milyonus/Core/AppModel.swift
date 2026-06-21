@@ -74,15 +74,7 @@ final class AppModel: ObservableObject {
   func startSession() async {
     guard !isSessionActive else { return }
 
-    permissionsManager.refresh()
-
-    guard permissionsManager.screenRecordingGranted else {
-      statusMessage = "Ekran kaydı izni gerekli"
-      return
-    }
-
-    guard permissionsManager.microphoneGranted else {
-      statusMessage = "Mikrofon izni gerekli"
+    guard await requestMissingPermissionsForSessionStart() else {
       return
     }
 
@@ -100,6 +92,36 @@ final class AppModel: ObservableObject {
       statusMessage = "Başlatılamadı"
       assistError = error.localizedDescription
     }
+  }
+
+  private func requestMissingPermissionsForSessionStart() async -> Bool {
+    permissionsManager.refresh()
+
+    if !permissionsManager.screenRecordingGranted {
+      statusMessage = "Ekran kaydı izni isteniyor..."
+      permissionsManager.requestScreenRecording()
+    }
+
+    if !permissionsManager.microphoneGranted {
+      statusMessage = "Mikrofon izni isteniyor..."
+      await permissionsManager.requestMicrophone()
+    }
+
+    permissionsManager.refresh()
+
+    if !permissionsManager.screenRecordingGranted {
+      statusMessage = "Ekran kaydı izni gerekli"
+      permissionsManager.openScreenRecordingSettings()
+      return false
+    }
+
+    if !permissionsManager.microphoneGranted {
+      statusMessage = "Mikrofon izni gerekli"
+      permissionsManager.openMicrophoneSettings()
+      return false
+    }
+
+    return true
   }
 
   func endSession() async {

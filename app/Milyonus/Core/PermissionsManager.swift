@@ -16,16 +16,35 @@ final class PermissionsManager: ObservableObject {
   func refresh() {
     screenRecordingGranted = CGPreflightScreenCaptureAccess()
     microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+    logStatus()
   }
 
-  func requestScreenRecording() {
-    _ = CGRequestScreenCaptureAccess()
+  @discardableResult
+  func requestScreenRecording() -> Bool {
+    log("Requesting Screen Recording access")
+    screenRecordingGranted = CGRequestScreenCaptureAccess() || CGPreflightScreenCaptureAccess()
     refresh()
+    return screenRecordingGranted
   }
 
-  func requestMicrophone() async {
-    let granted = await AVCaptureDevice.requestAccess(for: .audio)
-    microphoneGranted = granted
+  @discardableResult
+  func requestMicrophone() async -> Bool {
+    let status = AVCaptureDevice.authorizationStatus(for: .audio)
+    log("Microphone status before request: \(describeMicrophoneStatus(status))")
+
+    switch status {
+    case .authorized:
+      microphoneGranted = true
+    case .notDetermined:
+      microphoneGranted = await AVCaptureDevice.requestAccess(for: .audio)
+    case .denied, .restricted:
+      microphoneGranted = false
+    @unknown default:
+      microphoneGranted = false
+    }
+
+    logStatus()
+    return microphoneGranted
   }
 
   func openScreenRecordingSettings() {
@@ -39,5 +58,31 @@ final class PermissionsManager: ObservableObject {
   private func openSettings(path: String) {
     guard let url = URL(string: path) else { return }
     NSWorkspace.shared.open(url)
+  }
+
+  private func logStatus() {
+    log("Screen Recording status: \(screenRecordingGranted ? "granted" : "missing")")
+    log("Microphone status: \(describeMicrophoneStatus(AVCaptureDevice.authorizationStatus(for: .audio)))")
+  }
+
+  private func describeMicrophoneStatus(_ status: AVAuthorizationStatus) -> String {
+    switch status {
+    case .notDetermined:
+      return "notDetermined"
+    case .restricted:
+      return "restricted"
+    case .denied:
+      return "denied"
+    case .authorized:
+      return "authorized"
+    @unknown default:
+      return "unknown"
+    }
+  }
+
+  private func log(_ message: String) {
+    #if DEBUG
+      print("[Permissions] \(message)")
+    #endif
   }
 }

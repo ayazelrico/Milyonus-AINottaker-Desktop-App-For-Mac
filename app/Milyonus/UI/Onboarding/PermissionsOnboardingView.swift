@@ -17,7 +17,9 @@ struct PermissionsOnboardingView: View {
         granted: permissionsManager.screenRecordingGranted,
         requestTitle: "İzin Ver",
         settingsTitle: "Ayarları Aç",
-        request: permissionsManager.requestScreenRecording,
+        request: {
+          _ = permissionsManager.requestScreenRecording()
+        },
         openSettings: permissionsManager.openScreenRecordingSettings
       )
 
@@ -89,4 +91,3 @@ Bunu tamamen senin kontrolünde tutmak için:
 
 Katılımcı listesinde Milyonus hiçbir zaman görünmez — çünkü toplantıya bot olarak katılmıyor, sadece senin cihazında çalışıyor.
 """
-
