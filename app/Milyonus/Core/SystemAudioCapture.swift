@@ -1,5 +1,4 @@
 import Foundation
-import CoreGraphics
 import CoreMedia
 import AVFoundation
 import ScreenCaptureKit
@@ -17,7 +16,7 @@ final class SystemAudioCapture: NSObject, SCStreamOutput {
   func start() async throws {
     consecutiveConversionFailures = 0
 
-    guard CGPreflightScreenCaptureAccess() else {
+    guard await hasScreenRecordingPermission() else {
       throw AudioCaptureError.screenRecordingPermissionMissing
     }
 
@@ -63,6 +62,18 @@ final class SystemAudioCapture: NSObject, SCStreamOutput {
 
     self.stream = nil
     onDebugMessage?("System audio capture stopped")
+  }
+
+  private func hasScreenRecordingPermission() async -> Bool {
+    do {
+      let _ = try await SCShareableContent.excludingDesktopWindows(
+        false,
+        onScreenWindowsOnly: true
+      )
+      return true
+    } catch {
+      return false
+    }
   }
 
   func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of outputType: SCStreamOutputType) {

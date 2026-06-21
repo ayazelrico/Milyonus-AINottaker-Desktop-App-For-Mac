@@ -2,7 +2,7 @@ import Foundation
 import AppKit
 import AVFoundation
 import Combine
-import CoreGraphics
+import ScreenCaptureKit
 
 @MainActor
 final class PermissionsManager: ObservableObject {
@@ -14,16 +14,62 @@ final class PermissionsManager: ObservableObject {
   }
 
   func refresh() {
-    screenRecordingGranted = CGPreflightScreenCaptureAccess()
-    microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
-    logStatus()
+    refreshMicrophoneStatus()
+
+    Task {
+      await refreshScreenRecordingStatus()
+    }
   }
 
   @discardableResult
-  func requestScreenRecording() -> Bool {
+  func refreshScreenRecordingStatus() async -> Bool {
+    let granted = await checkScreenRecordingStatus()
+    logStatus()
+    return granted
+  }
+
+  func refreshMicrophoneStatus() {
+    microphoneGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
+  }
+
+  @discardableResult
+  func checkScreenRecordingStatus() async -> Bool {
+    do {
+      let _ = try await SCShareableContent.excludingDesktopWindows(
+        false,
+        onScreenWindowsOnly: true
+      )
+      screenRecordingGranted = true
+    } catch {
+      screenRecordingGranted = false
+    }
+
+    return screenRecordingGranted
+  }
+
+  @discardableResult
+  func requestScreenRecording() async -> Bool {
+    await requestScreenRecordingViaScreenCaptureKit()
+  }
+
+  @discardableResult
+  func requestScreenRecordingViaScreenCaptureKit() async -> Bool {
     log("Requesting Screen Recording access")
-    screenRecordingGranted = CGRequestScreenCaptureAccess() || CGPreflightScreenCaptureAccess()
-    refresh()
+
+    do {
+      let _ = try await SCShareableContent.excludingDesktopWindows(
+        false,
+        onScreenWindowsOnly: true
+      )
+      screenRecordingGranted = true
+      log("Screen Recording granted via ScreenCaptureKit")
+    } catch {
+      screenRecordingGranted = false
+      log("Screen Recording denied or failed: \(error.localizedDescription)")
+      openScreenRecordingSettings()
+    }
+
+    logStatus()
     return screenRecordingGranted
   }
 

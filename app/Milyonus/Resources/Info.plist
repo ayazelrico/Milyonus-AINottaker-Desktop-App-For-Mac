@@ -34,9 +34,11 @@
   <key>LSUIElement</key>
   <true/>
   <key>NSMicrophoneUsageDescription</key>
-  <string>Milyonus, toplantı sırasında konuşmaları anlayabilmek için mikrofonunuzu kullanır.</string>
+  <string>Milyonus, senin sesini karşı taraftan ayırabilmek için mikrofon iznine ihtiyaç duyar.</string>
   <key>NSScreenCaptureDescription</key>
   <string>Milyonus, toplantı sesini gerçek zamanlı işleyebilmek için ekran kaydı iznine ihtiyaç duyar. Görüntü kaydedilmez veya saklanmaz.</string>
+  <key>NSScreenCaptureUsageDescription</key>
+  <string>Milyonus, toplantı sesini anlayabilmek için ekran kaydı iznine ihtiyaç duyar.</string>
   <key>API_BASE_URL</key>
   <string>$(API_BASE_URL)</string>
   <key>SUPABASE_URL</key>

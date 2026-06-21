@@ -18,7 +18,7 @@ struct PermissionsOnboardingView: View {
         requestTitle: "İzin Ver",
         settingsTitle: "Ayarları Aç",
         request: {
-          _ = permissionsManager.requestScreenRecording()
+          Task { await permissionsManager.requestScreenRecordingViaScreenCaptureKit() }
         },
         openSettings: permissionsManager.openScreenRecordingSettings
       )

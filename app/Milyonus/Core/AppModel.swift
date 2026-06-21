@@ -77,7 +77,7 @@ final class AppModel: ObservableObject {
       }
     )
 
-    permissionsManager.refresh()
+    permissionsManager.refreshMicrophoneStatus()
     checkForMeetingApp()
   }
 
@@ -106,11 +106,19 @@ final class AppModel: ObservableObject {
   }
 
   private func requestMissingPermissionsForSessionStart() async -> Bool {
-    permissionsManager.refresh()
+    permissionsManager.refreshMicrophoneStatus()
 
-    if !permissionsManager.screenRecordingGranted {
+    let hasScreenRecordingPermission = await permissionsManager.checkScreenRecordingStatus()
+    if !hasScreenRecordingPermission {
       statusMessage = "Ekran kaydı izni isteniyor..."
-      permissionsManager.requestScreenRecording()
+      await permissionsManager.requestScreenRecordingViaScreenCaptureKit()
+
+      let retryCheck = await permissionsManager.checkScreenRecordingStatus()
+      guard retryCheck else {
+        print("[Permissions] Screen Recording still missing after request")
+        statusMessage = "Ekran kaydı izni gerekli"
+        return false
+      }
     }
 
     if !permissionsManager.microphoneGranted {
@@ -118,13 +126,7 @@ final class AppModel: ObservableObject {
       await permissionsManager.requestMicrophone()
     }
 
-    permissionsManager.refresh()
-
-    if !permissionsManager.screenRecordingGranted {
-      statusMessage = "Ekran kaydı izni gerekli"
-      permissionsManager.openScreenRecordingSettings()
-      return false
-    }
+    permissionsManager.refreshMicrophoneStatus()
 
     if !permissionsManager.microphoneGranted {
       statusMessage = "Mikrofon izni gerekli"
