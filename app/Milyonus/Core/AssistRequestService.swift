@@ -37,8 +37,8 @@ final class AssistRequestService {
       throw AssistRequestError.missingAPIBaseURL
     }
 
-    let session = await authService.getCurrentSession()
-    guard let token = session?.accessToken else {
+    let session = try await authService.ensureAuthenticatedSession()
+    guard let token = session.accessToken else {
       throw AssistRequestError.missingSessionToken
     }
 

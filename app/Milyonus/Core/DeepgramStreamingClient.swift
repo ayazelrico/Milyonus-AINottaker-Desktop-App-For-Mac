@@ -94,8 +94,8 @@ final class DeepgramStreamingClient {
       throw DeepgramStreamingError.missingAPIBaseURL
     }
 
-    let session = await authService.getCurrentSession()
-    guard let supabaseJWT = session?.accessToken else {
+    let session = try await authService.ensureAuthenticatedSession()
+    guard let supabaseJWT = session.accessToken else {
       throw DeepgramStreamingError.missingSessionToken
     }
 

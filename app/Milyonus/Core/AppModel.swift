@@ -74,6 +74,10 @@ final class AppModel: ObservableObject {
 
     permissionsManager.refreshMicrophoneStatus()
     checkForMeetingApp()
+
+    Task { [weak self] in
+      await self?.ensureBackendAuthSession()
+    }
   }
 
   func startSession() async {
@@ -82,10 +86,10 @@ final class AppModel: ObservableObject {
     #if DEBUG
       // Dev mode: login kontrolü atlanıyor.
     #else
-      let isAuthenticated = await authService.getCurrentSession() != nil
-
-      guard isAuthenticated else {
-        print("[Session] Not authenticated, skipping in release")
+      do {
+        _ = try await authService.ensureAuthenticatedSession()
+      } catch {
+        print("[Session] Not authenticated, skipping in release: \(error.localizedDescription)")
         return
       }
     #endif
@@ -143,6 +147,14 @@ final class AppModel: ObservableObject {
     }
 
     return true
+  }
+
+  private func ensureBackendAuthSession() async {
+    do {
+      _ = try await authService.ensureAuthenticatedSession()
+    } catch {
+      print("[Auth] Anonymous session unavailable: \(error.localizedDescription)")
+    }
   }
 
   func endSession() async {

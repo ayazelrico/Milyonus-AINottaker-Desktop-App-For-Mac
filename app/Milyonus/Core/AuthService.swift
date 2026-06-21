@@ -14,6 +14,7 @@ protocol AuthServiceProtocol {
   func signInWithGoogle() async throws
   func handleAuthCallback(_ url: URL) async throws
   func getCurrentSession() async -> UserSession?
+  func ensureAuthenticatedSession() async throws -> UserSession
   func signOut() async throws
 }
 
@@ -70,6 +71,14 @@ actor MockAuthService: AuthServiceProtocol {
     return nil
   }
 
+  func ensureAuthenticatedSession() async throws -> UserSession {
+    if let currentSession {
+      return currentSession
+    }
+
+    throw AuthServiceError.missingSupabaseConfiguration
+  }
+
   func signOut() async throws {
     currentSession = nil
   }
@@ -121,18 +130,39 @@ actor MockAuthService: AuthServiceProtocol {
     func getCurrentSession() async -> UserSession? {
       do {
         let session = try await client.auth.session
-        return UserSession(
-          userID: session.user.id.uuidString,
-          email: session.user.email,
-          accessToken: session.accessToken
-        )
+        return userSession(from: session)
       } catch {
         return nil
       }
     }
 
+    func ensureAuthenticatedSession() async throws -> UserSession {
+      do {
+        let session = try await client.auth.session
+        print("[Auth] Existing Supabase session found")
+        return userSession(from: session)
+      } catch {
+        do {
+          let session = try await client.auth.signInAnonymously()
+          print("[Auth] Anonymous session created")
+          return userSession(from: session)
+        } catch {
+          print("[Auth] Anonymous session failed: \(error.localizedDescription)")
+          throw error
+        }
+      }
+    }
+
     func signOut() async throws {
       try await client.auth.signOut()
+    }
+
+    private func userSession(from session: Session) -> UserSession {
+      UserSession(
+        userID: session.user.id.uuidString,
+        email: session.user.email,
+        accessToken: session.accessToken
+      )
     }
   }
 #endif

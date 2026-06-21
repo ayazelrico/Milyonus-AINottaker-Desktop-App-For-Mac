@@ -16,9 +16,13 @@ final class BackendConnectionTester {
     let url = apiBaseURL.appendingPathComponent("api").appendingPathComponent("usage")
     var request = URLRequest(url: url)
 
-    let session = await authService.getCurrentSession()
-    if let token = session?.accessToken {
-      request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    do {
+      let session = try await authService.ensureAuthenticatedSession()
+      if let token = session.accessToken {
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+      }
+    } catch {
+      return "Supabase oturumu oluşturulamadı: \(error.localizedDescription)"
     }
 
     do {

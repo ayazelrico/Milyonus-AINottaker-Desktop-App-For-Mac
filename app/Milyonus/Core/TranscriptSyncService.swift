@@ -62,8 +62,8 @@ final class TranscriptSyncService {
 
   private func post(segments: [TranscriptSegment], sessionID: UUID) async throws {
     guard let apiBaseURL = AppConfig.apiBaseURL else { return }
-    let session = await authService.getCurrentSession()
-    guard let token = session?.accessToken else {
+    let session = try await authService.ensureAuthenticatedSession()
+    guard let token = session.accessToken else {
       throw AuthServiceError.missingSession
     }
 
