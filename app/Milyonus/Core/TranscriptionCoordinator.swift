@@ -7,35 +7,55 @@ final class TranscriptionCoordinator: ObservableObject {
   @Published var statusMessage: String?
 
   private let audioCaptureCoordinator: AudioCaptureCoordinator
+  private let authService: AuthServiceProtocol
   private let transcriptBuffer: TranscriptBufferManager
   private let syncService: TranscriptSyncService
   private var systemClient: DeepgramStreamingClient?
   private var microphoneClient: DeepgramStreamingClient?
   private var audioTasks: [Task<Void, Never>] = []
+  private var isHandlingFatalError = false
+
+  var onFatalError: ((String) -> Void)?
 
   init(
     audioCaptureCoordinator: AudioCaptureCoordinator,
+    authService: AuthServiceProtocol,
     transcriptBuffer: TranscriptBufferManager,
     syncService: TranscriptSyncService
   ) {
     self.audioCaptureCoordinator = audioCaptureCoordinator
+    self.authService = authService
     self.transcriptBuffer = transcriptBuffer
     self.syncService = syncService
     self.syncService.attach(buffer: transcriptBuffer)
+
+    self.audioCaptureCoordinator.onFatalError = { [weak self] message in
+      Task { @MainActor in
+        await self?.handleFatalError(message)
+      }
+    }
   }
 
   func start(sessionID: UUID, language: LanguagePreference) async throws {
     guard !isTranscribing else { return }
 
-    let systemClient = DeepgramStreamingClient(source: .system, language: language)
-    let microphoneClient = DeepgramStreamingClient(source: .microphone, language: language)
+    let systemClient = DeepgramStreamingClient(
+      source: .system,
+      language: language,
+      authService: authService
+    )
+    let microphoneClient = DeepgramStreamingClient(
+      source: .microphone,
+      language: language,
+      authService: authService
+    )
     configure(client: systemClient)
     configure(client: microphoneClient)
 
     do {
-      try await audioCaptureCoordinator.startCapture()
       try await systemClient.connect()
       try await microphoneClient.connect()
+      try await audioCaptureCoordinator.startCapture()
     } catch {
       await systemClient.close()
       await microphoneClient.close()
@@ -99,5 +119,22 @@ final class TranscriptionCoordinator: ObservableObject {
         print("[Deepgram] \(message)")
       }
     }
+
+    client.onFatalError = { [weak self] message in
+      Task { @MainActor in
+        await self?.handleFatalError(message)
+      }
+    }
+  }
+
+  private func handleFatalError(_ message: String) async {
+    guard !isHandlingFatalError else { return }
+    isHandlingFatalError = true
+
+    statusMessage = message
+    onFatalError?(message)
+    await stop()
+
+    isHandlingFatalError = false
   }
 }

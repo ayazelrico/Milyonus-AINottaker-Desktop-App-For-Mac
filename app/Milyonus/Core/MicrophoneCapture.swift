@@ -4,11 +4,16 @@ import AVFoundation
 final class MicrophoneCapture {
   var onChunk: ((AudioChunk) -> Void)?
   var onDebugMessage: ((String) -> Void)?
+  var onFatalError: ((String) -> Void)?
 
   private let engine = AVAudioEngine()
   private let tapBus = 0
+  private let conversionFailureLimit = 10
+  private var consecutiveConversionFailures = 0
 
   func start() throws {
+    consecutiveConversionFailures = 0
+
     guard AVCaptureDevice.authorizationStatus(for: .audio) == .authorized else {
       throw AudioCaptureError.microphonePermissionMissing
     }
@@ -24,6 +29,7 @@ final class MicrophoneCapture {
         let data = try AudioFormat.linearPCMData(from: buffer)
         guard !data.isEmpty else { return }
 
+        self.consecutiveConversionFailures = 0
         self.onDebugMessage?("microphone chunk \(data.count) bytes")
         self.onChunk?(
           AudioChunk(
@@ -33,7 +39,7 @@ final class MicrophoneCapture {
           )
         )
       } catch {
-        self.onDebugMessage?("Microphone conversion failed: \(error.localizedDescription)")
+        self.handleConversionFailure(error)
       }
     }
 
@@ -47,5 +53,13 @@ final class MicrophoneCapture {
     engine.stop()
     onDebugMessage?("Microphone capture stopped")
   }
-}
 
+  private func handleConversionFailure(_ error: Error) {
+    consecutiveConversionFailures += 1
+    onDebugMessage?("Microphone conversion failed: \(error.localizedDescription)")
+
+    if consecutiveConversionFailures >= conversionFailureLimit {
+      onFatalError?("Ses yakalama hatası. Sistem ses ayarlarını kontrol et.")
+    }
+  }
+}

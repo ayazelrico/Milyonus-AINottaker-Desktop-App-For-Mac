@@ -7,10 +7,10 @@ Native menu bar app for Milyonus.
 1. Open `Milyonus.xcodeproj` in Xcode.
 2. Copy `Milyonus/Secrets.xcconfig.example` to `Milyonus/Secrets.xcconfig`.
 3. Set `API_BASE_URL`, `SUPABASE_URL`, and `SUPABASE_ANON_KEY`.
-4. Do not put a Deepgram key in the app; production needs a backend-issued short-lived token endpoint first.
+4. Do not put a Deepgram key in the app; the app fetches short-lived Deepgram tokens from the backend.
 5. Build and run the `Milyonus` scheme.
 
-Deepgram production streaming is still blocked until `/api/deepgram-token` or equivalent backend token issuance exists.
+Deepgram production streaming requires a logged-in Supabase session and a backend `DEEPGRAM_API_KEY` configured in Vercel.
 
 ## Manual Test Checklist
 
@@ -18,7 +18,7 @@ Deepgram production streaming is still blocked until `/api/deepgram-token` or eq
 - Settings opens from the menu.
 - Screen Recording and Microphone permission prompts are reachable.
 - Start Session begins system and microphone capture on a real Mac with permissions granted.
-- Transcript logs appear after Deepgram credentials are configured.
+- Transcript logs appear after login and Deepgram backend token issuance are configured.
 - Cmd+\ hides and shows the floating panel immediately.
 - Cmd+Enter opens the panel and streams `/api/assist` output when backend auth is configured.
 

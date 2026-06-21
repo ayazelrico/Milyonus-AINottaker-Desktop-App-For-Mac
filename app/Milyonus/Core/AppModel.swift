@@ -25,6 +25,7 @@ final class AppModel: ObservableObject {
   private lazy var transcriptSyncService = TranscriptSyncService(authService: authService)
   private lazy var transcriptionCoordinator = TranscriptionCoordinator(
     audioCaptureCoordinator: audioCapture,
+    authService: authService,
     transcriptBuffer: transcriptBuffer,
     syncService: transcriptSyncService
   )
@@ -42,10 +43,19 @@ final class AppModel: ObservableObject {
     return "waveform.circle"
   }
 
+  var panelErrorMessage: String? {
+    audioCapture.captureError ?? assistError
+  }
+
   private lazy var backendConnectionTester = BackendConnectionTester(authService: authService)
 
   init(authService: AuthServiceProtocol = AuthServiceFactory.make()) {
     self.authService = authService
+    transcriptionCoordinator.onFatalError = { [weak self] message in
+      Task { @MainActor in
+        self?.handleTranscriptionFatalError(message)
+      }
+    }
   }
 
   func startRuntimeIfNeeded() {
@@ -90,7 +100,8 @@ final class AppModel: ObservableObject {
     } catch {
       currentSessionID = nil
       statusMessage = "Başlatılamadı"
-      assistError = error.localizedDescription
+      assistError = runtimeErrorMessage(for: error)
+      panelController.show()
     }
   }
 
@@ -222,5 +233,25 @@ final class AppModel: ObservableObject {
     if let app = meetingDetector.frontmostMeetingApp() {
       statusMessage = "\(app.displayName) algılandı. Başlatmak ister misin?"
     }
+  }
+
+  private func handleTranscriptionFatalError(_ message: String) {
+    assistError = message
+    statusMessage = "Duraklatıldı"
+    isSessionActive = false
+    currentSessionID = nil
+    panelController.show()
+  }
+
+  private func runtimeErrorMessage(for error: Error) -> String {
+    if error is DeepgramStreamingError {
+      return "Backend bağlantı hatası. Lütfen tekrar giriş yap."
+    }
+
+    if error is AudioCaptureError {
+      return "Ses yakalama hatası. Sistem ses ayarlarını kontrol et."
+    }
+
+    return error.localizedDescription
   }
 }

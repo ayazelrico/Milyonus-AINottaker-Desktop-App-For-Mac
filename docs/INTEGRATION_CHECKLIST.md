@@ -20,7 +20,7 @@
 - [ ] Start Session sonrası audio capture başlıyor (konsol logları doğrulanıyor)
   - Gerçek Mac uygulama çalıştırmasında test edilmeli.
 - [ ] Deepgram bağlantısı kuruluyor (veya hâlâ TODO ise bu açıkça not ediliyor)
-  - Hâlâ TODO: Deepgram production'a hazır değil. Swift app'e API key koyulmuyor; önce backend kısa ömürlü token endpoint'i eklenmeli.
+  - Swift app `/api/deepgram-token` üzerinden kısa ömürlü token alıyor; gerçek login ve Vercel `DEEPGRAM_API_KEY` ile cihazda test edilmeli.
 - [ ] Cmd+Enter, panel'i öne getirip backend'e istek atıyor
   - Gerçek login/session ve app çalıştırmasıyla test edilmeli.
 - [ ] Cmd+\ paneli anında gizleyip gösteriyor

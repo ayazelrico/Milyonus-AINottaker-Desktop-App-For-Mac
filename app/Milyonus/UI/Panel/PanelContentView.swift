@@ -51,7 +51,7 @@ struct PanelContentView: View {
               .foregroundStyle(.secondary)
           }
 
-          if let error = appModel.assistError {
+          if let error = appModel.panelErrorMessage {
             Text(error)
               .font(.caption)
               .foregroundStyle(.red)
@@ -114,4 +114,3 @@ struct PanelContentView: View {
     }
   }
 }
-

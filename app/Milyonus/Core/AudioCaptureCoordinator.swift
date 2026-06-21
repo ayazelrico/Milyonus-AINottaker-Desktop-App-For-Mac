@@ -7,6 +7,8 @@ final class AudioCaptureCoordinator: ObservableObject {
   @Published var captureError: String?
   @Published var debugMessages: [String] = []
 
+  var onFatalError: ((String) -> Void)?
+
   private var systemCapture = SystemAudioCapture()
   private var microphoneCapture = MicrophoneCapture()
   private var systemPipe = AudioChunkStream()
@@ -45,6 +47,12 @@ final class AudioCaptureCoordinator: ObservableObject {
     microphoneCapture.onDebugMessage = { [weak self] message in
       Task { @MainActor in self?.appendDebugMessage(message) }
     }
+    systemCapture.onFatalError = { [weak self] message in
+      Task { @MainActor in self?.handleFatalError(message) }
+    }
+    microphoneCapture.onFatalError = { [weak self] message in
+      Task { @MainActor in self?.handleFatalError(message) }
+    }
 
     do {
       try await systemCapture.start()
@@ -73,5 +81,11 @@ final class AudioCaptureCoordinator: ObservableObject {
     }
 
     print("[AudioCapture] \(message)")
+  }
+
+  private func handleFatalError(_ message: String) {
+    captureError = message
+    appendDebugMessage(message)
+    onFatalError?(message)
   }
 }
