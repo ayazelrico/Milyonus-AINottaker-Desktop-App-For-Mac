@@ -1,6 +1,7 @@
 import Foundation
 import AppKit
 import Combine
+import SwiftUI
 
 @MainActor
 final class AppModel: ObservableObject {
@@ -213,27 +214,23 @@ final class AppModel: ObservableObject {
 
     guard !isAssistStreaming else { return }
 
-    let trimmedQuestion = question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-    let userDisplayText = trimmedQuestion.isEmpty ? "Assist" : trimmedQuestion
-    messages.append(ChatMessage(role: .user, content: userDisplayText))
-    pendingQuestion = ""
-
-    guard let sessionID = currentSessionID else {
-      assistError = "Önce bir oturum başlat."
-      return
-    }
-
+    isAssistStreaming = true
     assistResponse = ""
     assistError = nil
-    isAssistStreaming = true
+
+    let trimmedQuestion = question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let userDisplayText = trimmedQuestion.isEmpty ? "Assist" : trimmedQuestion
+    appendMessage(ChatMessage(role: .user, content: userDisplayText))
+    pendingQuestion = ""
+
     let assistantMessageID = UUID()
-    messages.append(ChatMessage(id: assistantMessageID, role: .assistant, content: ""))
+    appendMessage(ChatMessage(id: assistantMessageID, role: .assistant, content: ""))
 
     do {
       // TODO: /api/assist currently accepts only the latest user_question. Keep the
       // full local chat thread here until the backend accepts conversation history.
       try await assistService.streamAssist(
-        sessionID: sessionID,
+        sessionID: currentSessionID,
         question: trimmedQuestion,
         language: languagePreference
       ) { [weak self] delta in
@@ -241,14 +238,30 @@ final class AppModel: ObservableObject {
       }
       pendingQuestion = ""
     } catch {
-      assistError = error.localizedDescription
       replaceAssistantMessage(
         id: assistantMessageID,
-        content: "Yanıt alınamadı: \(error.localizedDescription)"
+        content: "Bağlantı hatası, tekrar dene. \(error.localizedDescription)",
+        isError: true
       )
     }
 
     isAssistStreaming = false
+  }
+
+  func appendChatError(_ message: String) {
+    panelController.show()
+    panelController.expandChat()
+    appendMessage(ChatMessage(role: .assistant, content: message, isError: true))
+  }
+
+  var hasTranscriptContext: Bool {
+    !transcriptBuffer.fullTranscript().trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+  }
+
+  private func appendMessage(_ message: ChatMessage) {
+    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+      messages.append(message)
+    }
   }
 
   private func appendAssistantDelta(_ delta: String, to messageID: UUID) {
@@ -256,17 +269,22 @@ final class AppModel: ObservableObject {
 
     guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
 
-    var updatedMessages = messages
-    updatedMessages[index].content += delta
-    messages = updatedMessages
+    withAnimation(.easeOut(duration: 0.16)) {
+      var updatedMessages = messages
+      updatedMessages[index].content += delta
+      messages = updatedMessages
+    }
   }
 
-  private func replaceAssistantMessage(id messageID: UUID, content: String) {
+  private func replaceAssistantMessage(id messageID: UUID, content: String, isError: Bool = false) {
     guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
 
-    var updatedMessages = messages
-    updatedMessages[index].content = content
-    messages = updatedMessages
+    withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+      var updatedMessages = messages
+      updatedMessages[index].content = content
+      updatedMessages[index].isError = isError
+      messages = updatedMessages
+    }
   }
 
   func panelStateDidChange() {

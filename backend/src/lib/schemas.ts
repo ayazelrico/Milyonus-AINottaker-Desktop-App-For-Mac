@@ -3,8 +3,8 @@ import { z } from "zod";
 export const uuidSchema = z.string().uuid();
 
 export const assistRequestSchema = z.object({
-  session_id: uuidSchema,
-  transcript_context: z.string().trim().min(1).max(30000),
+  session_id: uuidSchema.nullish(),
+  transcript_context: z.string().trim().max(30000).default(""),
   user_question: z.string().trim().max(2000).optional(),
   language: z.string().trim().min(2).max(16).default("tr")
 });
@@ -30,4 +30,3 @@ export const transcriptChunkSchema = z.object({
 export const transcriptBatchSchema = z.object({
   chunks: z.array(transcriptChunkSchema).min(1).max(250)
 });
-

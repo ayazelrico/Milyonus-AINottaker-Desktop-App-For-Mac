@@ -28,7 +28,7 @@ final class AssistRequestService {
   }
 
   func streamAssist(
-    sessionID: UUID,
+    sessionID: UUID?,
     question: String?,
     language: LanguagePreference,
     onDelta: @MainActor @escaping (String) -> Void
@@ -49,10 +49,10 @@ final class AssistRequestService {
     request.addValue("text/event-stream", forHTTPHeaderField: "Accept")
     request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
 
-    let context = transcriptBuffer.recentContext(minutes: 5)
+    let context = sessionID == nil ? "" : transcriptBuffer.recentContext(minutes: 5)
     let payload = AssistPayload(
-      session_id: sessionID.uuidString,
-      transcript_context: context.isEmpty ? "Henüz final transcript yok." : context,
+      session_id: sessionID?.uuidString,
+      transcript_context: context,
       user_question: question?.isEmpty == true ? nil : question,
       language: language.assistLanguageCode
     )
@@ -83,7 +83,7 @@ final class AssistRequestService {
 }
 
 private struct AssistPayload: Encodable {
-  let session_id: String
+  let session_id: String?
   let transcript_context: String
   let user_question: String?
   let language: String

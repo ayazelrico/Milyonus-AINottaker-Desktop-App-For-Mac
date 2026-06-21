@@ -22,20 +22,24 @@ export async function POST(request: Request) {
   try {
     const auth = await requireUser(request);
     const body = assistRequestSchema.parse(await readJson(request));
+    const sessionId = body.session_id ?? null;
+    const transcriptContext = body.transcript_context.trim();
 
-    const { data: session, error: sessionError } = await auth.supabase
-      .from("meeting_sessions")
-      .select("id,user_id,status")
-      .eq("id", body.session_id)
-      .eq("user_id", auth.user.id)
-      .maybeSingle();
+    if (sessionId) {
+      const { data: session, error: sessionError } = await auth.supabase
+        .from("meeting_sessions")
+        .select("id,user_id,status")
+        .eq("id", sessionId)
+        .eq("user_id", auth.user.id)
+        .maybeSingle();
 
-    if (sessionError) {
-      throw sessionError;
-    }
+      if (sessionError) {
+        throw sessionError;
+      }
 
-    if (!session) {
-      return jsonError("Session not found", 404);
+      if (!session) {
+        return jsonError("Session not found", 404);
+      }
     }
 
     const plan = await getUserPlan(auth.supabase, auth.user.id);
@@ -70,7 +74,7 @@ export async function POST(request: Request) {
                   `Dil tercihi: ${body.language}`,
                   `Kullanıcı sorusu: ${body.user_question || "(yok)"}`,
                   "Son transcript context:",
-                  body.transcript_context
+                  transcriptContext || "Henüz canlı transcript yok; kullanıcının yazılı sorusunu genel bilgiyle cevapla."
                 ].join("\n\n")
               }
             ]
@@ -89,18 +93,20 @@ export async function POST(request: Request) {
 
           const latencyMs = Date.now() - startedAt;
 
-          const interactionResult = await auth.supabase.from("ai_interactions").insert({
-            session_id: body.session_id,
-            user_id: auth.user.id,
-            prompt_context: body.transcript_context.slice(0, 20000),
-            user_question: body.user_question ?? null,
-            ai_response: aiResponse,
-            model: "gpt-4o",
-            latency_ms: latencyMs
-          });
+          if (sessionId) {
+            const interactionResult = await auth.supabase.from("ai_interactions").insert({
+              session_id: sessionId,
+              user_id: auth.user.id,
+              prompt_context: transcriptContext.slice(0, 20000),
+              user_question: body.user_question ?? null,
+              ai_response: aiResponse,
+              model: "gpt-4o",
+              latency_ms: latencyMs
+            });
 
-          if (interactionResult.error) {
-            console.error(interactionResult.error);
+            if (interactionResult.error) {
+              console.error(interactionResult.error);
+            }
           }
 
           const usageResult = await auth.supabase.from("usage_logs").insert({
@@ -108,7 +114,7 @@ export async function POST(request: Request) {
             event_type: "ai_call",
             quantity: 1,
             metadata: {
-              session_id: body.session_id,
+              session_id: sessionId,
               model: "gpt-4o",
               latency_ms: latencyMs
             }
@@ -139,4 +145,3 @@ export async function POST(request: Request) {
     return handleRouteError(error);
   }
 }
-

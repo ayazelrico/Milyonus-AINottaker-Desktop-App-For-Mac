@@ -3,6 +3,7 @@ import SwiftUI
 
 struct PanelContentView: View {
   @EnvironmentObject private var appModel: AppModel
+  @State private var isSendQueued = false
 
   private let bottomAnchorID = "chat-bottom-anchor"
 
@@ -67,6 +68,10 @@ struct PanelContentView: View {
           ForEach(appModel.messages) { message in
             messageBubble(for: message)
               .id(message.id)
+              .transition(.asymmetric(
+                insertion: .move(edge: .bottom).combined(with: .opacity),
+                removal: .opacity
+              ))
           }
 
           if let error = appModel.panelErrorMessage {
@@ -93,6 +98,7 @@ struct PanelContentView: View {
       .onChange(of: appModel.panelErrorMessage) { _ in
         scrollToBottom(proxy)
       }
+      .animation(.spring(response: 0.35, dampingFraction: 0.75), value: appModel.messages)
     }
   }
 
@@ -132,16 +138,25 @@ struct PanelContentView: View {
           }
         }
 
-        Text(displayText(for: message))
-          .font(.system(size: 13, weight: .regular))
-          .lineSpacing(4)
-          .foregroundStyle(.white.opacity(0.94))
-          .textSelection(.enabled)
-          .padding(.horizontal, 12)
-          .padding(.vertical, 9)
-          .background {
-            messageBubbleBackground(for: message.role)
+        Group {
+          if message.role == .assistant && message.content.isEmpty && appModel.isAssistStreaming {
+            TypingIndicatorView()
+              .transition(.opacity)
+          } else {
+            Text(message.content)
+              .font(.system(size: 13, weight: .regular))
+              .lineSpacing(4)
+              .foregroundStyle(message.isError ? .red.opacity(0.94) : .white.opacity(0.94))
+              .textSelection(.enabled)
+              .transition(.opacity)
           }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 9)
+        .background {
+          messageBubbleBackground(for: message)
+        }
+        .animation(.easeOut(duration: 0.18), value: message.content.isEmpty)
       }
 
       if message.role == .assistant {
@@ -151,18 +166,10 @@ struct PanelContentView: View {
     .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
   }
 
-  private func displayText(for message: ChatMessage) -> String {
-    if message.role == .assistant && message.content.isEmpty {
-      return "Yanıt hazırlanıyor..."
-    }
-
-    return message.content
-  }
-
-  private func messageBubbleBackground(for role: ChatMessage.Role) -> some View {
+  private func messageBubbleBackground(for message: ChatMessage) -> some View {
     RoundedRectangle(cornerRadius: 14, style: .continuous)
       .fill(
-        role == .user
+        message.role == .user
           ? AnyShapeStyle(
             LinearGradient(
               colors: [.cyan.opacity(0.44), .blue.opacity(0.62)],
@@ -170,11 +177,11 @@ struct PanelContentView: View {
               endPoint: .bottomTrailing
             )
           )
-          : AnyShapeStyle(Color.white.opacity(0.08))
+          : AnyShapeStyle(message.isError ? Color.red.opacity(0.12) : Color.white.opacity(0.08))
       )
       .overlay {
         RoundedRectangle(cornerRadius: 14, style: .continuous)
-          .stroke(.white.opacity(role == .user ? 0.18 : 0.10), lineWidth: 1)
+          .stroke(message.isError ? .red.opacity(0.24) : .white.opacity(message.role == .user ? 0.18 : 0.10), lineWidth: 1)
       }
   }
 
@@ -184,7 +191,11 @@ struct PanelContentView: View {
       // prompt templates can replace these UI prompts once message history is supported.
       ForEach(assistChips, id: \.self) { chip in
         Button {
-          send(question: chip.prompt)
+          send(
+            question: chip.prompt,
+            requiresTranscript: chip.requiresTranscript,
+            allowEmpty: chip.allowEmpty
+          )
         } label: {
           Text(chip.title)
             .font(.system(size: 11, weight: .semibold))
@@ -272,14 +283,30 @@ struct PanelContentView: View {
     send(question: appModel.pendingQuestion)
   }
 
-  private func send(question: String) {
-    guard !appModel.isAssistStreaming else { return }
+  private func send(
+    question: String,
+    requiresTranscript: Bool = false,
+    allowEmpty: Bool = false
+  ) {
+    guard !isSendQueued && !appModel.isAssistStreaming else { return }
 
     let trimmedQuestion = question.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard allowEmpty || !trimmedQuestion.isEmpty else {
+      appModel.openChatPanel()
+      return
+    }
+
     appModel.openChatPanel()
 
+    if requiresTranscript && !appModel.hasTranscriptContext {
+      appModel.appendChatError("Önce bir oturum başlat.")
+      return
+    }
+
+    isSendQueued = true
     Task { @MainActor in
       await appModel.requestAssist(question: trimmedQuestion)
+      isSendQueued = false
     }
   }
 
@@ -289,7 +316,7 @@ struct PanelContentView: View {
 
   private func scrollToBottom(_ proxy: ScrollViewProxy) {
     DispatchQueue.main.async {
-      withAnimation(.easeOut(duration: 0.18)) {
+      withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
         proxy.scrollTo(bottomAnchorID, anchor: .bottom)
       }
     }
@@ -297,10 +324,10 @@ struct PanelContentView: View {
 
   private var assistChips: [AssistChip] {
     [
-      AssistChip(title: "Assist", prompt: ""),
+      AssistChip(title: "Assist", prompt: "", allowEmpty: true),
       AssistChip(title: "What should I say?", prompt: "What should I say next?"),
       AssistChip(title: "Follow-up questions", prompt: "Suggest follow-up questions."),
-      AssistChip(title: "Recap", prompt: "Recap the meeting so far.")
+      AssistChip(title: "Recap", prompt: "Recap the meeting so far.", requiresTranscript: true)
     ]
   }
 }
@@ -308,6 +335,33 @@ struct PanelContentView: View {
 private struct AssistChip: Hashable {
   let title: String
   let prompt: String
+  var requiresTranscript = false
+  var allowEmpty = false
+}
+
+private struct TypingIndicatorView: View {
+  @State private var isAnimating = false
+
+  var body: some View {
+    HStack(spacing: 5) {
+      ForEach(0..<3, id: \.self) { index in
+        Circle()
+          .fill(.white.opacity(0.76))
+          .frame(width: 6, height: 6)
+          .scaleEffect(isAnimating ? 1.0 : 0.6)
+          .animation(
+            .easeInOut(duration: 0.5)
+              .repeatForever()
+              .delay(Double(index) * 0.15),
+            value: isAnimating
+          )
+      }
+    }
+    .frame(height: 18)
+    .onAppear {
+      isAnimating = true
+    }
+  }
 }
 
 private struct ChatComposerTextView: NSViewRepresentable {
