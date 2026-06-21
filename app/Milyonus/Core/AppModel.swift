@@ -11,6 +11,7 @@ final class AppModel: ObservableObject {
   @Published var isAssistStreaming = false
   @Published var assistError: String?
   @Published var pendingQuestion = ""
+  @Published var messages: [ChatMessage] = []
   @Published var languagePreference: LanguagePreference = .auto
   @Published var backendConnectionStatus: String?
   @Published var sessionStartedAt: Date?
@@ -193,9 +194,29 @@ final class AppModel: ObservableObject {
     await requestAssist(question: pendingQuestion)
   }
 
+  func toggleSessionFromBar() async {
+    if isSessionActive {
+      await endSession()
+    } else {
+      await startSession()
+    }
+  }
+
+  func openChatPanel() {
+    panelController.show()
+    panelController.expandChat()
+  }
+
   func requestAssist(question: String?) async {
     panelController.show()
     panelController.expandChat()
+
+    guard !isAssistStreaming else { return }
+
+    let trimmedQuestion = question?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    let userDisplayText = trimmedQuestion.isEmpty ? "Assist" : trimmedQuestion
+    messages.append(ChatMessage(role: .user, content: userDisplayText))
+    pendingQuestion = ""
 
     guard let sessionID = currentSessionID else {
       assistError = "Önce bir oturum başlat."
@@ -205,21 +226,47 @@ final class AppModel: ObservableObject {
     assistResponse = ""
     assistError = nil
     isAssistStreaming = true
+    let assistantMessageID = UUID()
+    messages.append(ChatMessage(id: assistantMessageID, role: .assistant, content: ""))
 
     do {
+      // TODO: /api/assist currently accepts only the latest user_question. Keep the
+      // full local chat thread here until the backend accepts conversation history.
       try await assistService.streamAssist(
         sessionID: sessionID,
-        question: question?.trimmingCharacters(in: .whitespacesAndNewlines),
+        question: trimmedQuestion,
         language: languagePreference
       ) { [weak self] delta in
-        self?.assistResponse += delta
+        self?.appendAssistantDelta(delta, to: assistantMessageID)
       }
       pendingQuestion = ""
     } catch {
       assistError = error.localizedDescription
+      replaceAssistantMessage(
+        id: assistantMessageID,
+        content: "Yanıt alınamadı: \(error.localizedDescription)"
+      )
     }
 
     isAssistStreaming = false
+  }
+
+  private func appendAssistantDelta(_ delta: String, to messageID: UUID) {
+    assistResponse += delta
+
+    guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+
+    var updatedMessages = messages
+    updatedMessages[index].content += delta
+    messages = updatedMessages
+  }
+
+  private func replaceAssistantMessage(id messageID: UUID, content: String) {
+    guard let index = messages.firstIndex(where: { $0.id == messageID }) else { return }
+
+    var updatedMessages = messages
+    updatedMessages[index].content = content
+    messages = updatedMessages
   }
 
   func panelStateDidChange() {

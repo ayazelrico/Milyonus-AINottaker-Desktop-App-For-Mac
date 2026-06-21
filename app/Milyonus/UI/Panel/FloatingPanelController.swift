@@ -5,16 +5,18 @@ import Combine
 
 @MainActor
 final class FloatingPanelController: ObservableObject {
-  static let barContentSize = NSSize(width: 436, height: 58)
-  static let chatContentSize = NSSize(width: 620, height: 430)
+  static let barContentSize = NSSize(width: 560, height: 58)
+  static let chatContentSize = NSSize(width: 660, height: 500)
 
   @Published private(set) var isVisible: Bool
   @Published private(set) var isCollapsed: Bool
+  @Published private(set) var isStealthModeEnabled: Bool
 
   private enum DefaultsKey {
     static let frame = "panel.frame.v2"
     static let visible = "panel.visible"
     static let collapsed = "panel.collapsed.v2"
+    static let stealth = "panel.stealth.enabled"
   }
 
   private var window: FloatingPanelWindow?
@@ -23,6 +25,7 @@ final class FloatingPanelController: ObservableObject {
   init() {
     isVisible = UserDefaults.standard.object(forKey: DefaultsKey.visible) as? Bool ?? true
     isCollapsed = UserDefaults.standard.object(forKey: DefaultsKey.collapsed) as? Bool ?? true
+    isStealthModeEnabled = UserDefaults.standard.object(forKey: DefaultsKey.stealth) as? Bool ?? true
   }
 
   func install(appModel: AppModel) {
@@ -37,6 +40,8 @@ final class FloatingPanelController: ObservableObject {
       )
       window = panel
     }
+
+    applySharingType()
 
     if isVisible {
       show()
@@ -100,6 +105,17 @@ final class FloatingPanelController: ObservableObject {
     let size = visible ? Self.chatContentSize : Self.barContentSize
     let frame = resizedFramePreservingTopCenter(for: size, currentFrame: window.frame)
     window.setFrame(frame, display: true, animate: true)
+  }
+
+  func toggleStealthMode() {
+    isStealthModeEnabled.toggle()
+    UserDefaults.standard.set(isStealthModeEnabled, forKey: DefaultsKey.stealth)
+    applySharingType()
+    appModel?.panelStateDidChange()
+  }
+
+  private func applySharingType() {
+    window?.sharingType = isStealthModeEnabled ? .none : .readOnly
   }
 
   private func restoredFrame() -> NSRect {

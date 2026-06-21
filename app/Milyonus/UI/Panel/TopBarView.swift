@@ -41,11 +41,16 @@ struct GlassCapsuleBackground: View {
     ZStack {
       VisualEffectBlur(material: .hudWindow)
       Color.black.opacity(overlayOpacity)
+      LinearGradient(
+        colors: [.white.opacity(0.09), .white.opacity(0.02), .clear],
+        startPoint: .top,
+        endPoint: .bottom
+      )
     }
     .clipShape(Capsule())
     .overlay {
       Capsule()
-        .stroke(.white.opacity(0.14), lineWidth: 1)
+        .stroke(.white.opacity(0.15), lineWidth: 1)
     }
   }
 }
@@ -60,16 +65,22 @@ struct GlassRoundedBackground: View {
     ZStack {
       VisualEffectBlur(material: .hudWindow)
       Color.black.opacity(overlayOpacity)
+      LinearGradient(
+        colors: [.white.opacity(0.10), .white.opacity(0.03), .clear],
+        startPoint: .top,
+        endPoint: .bottom
+      )
     }
     .clipShape(shape)
     .overlay {
-      shape.stroke(.white.opacity(0.12), lineWidth: 1)
+      shape.stroke(.white.opacity(0.15), lineWidth: 1)
     }
   }
 }
 
 struct TopBarView: View {
   @EnvironmentObject private var appModel: AppModel
+  @State private var isKeybindsPopoverPresented = false
 
   var onAsk: () -> Void
   var onToggleChat: () -> Void
@@ -80,6 +91,8 @@ struct TopBarView: View {
         MilyonusLogoView(size: 22)
 
         statusView(now: context.date)
+
+        mainActionsMenu
 
         Divider()
           .frame(height: 20)
@@ -103,54 +116,47 @@ struct TopBarView: View {
         .help(appModel.panelController.isCollapsed ? "Chat panelini aç" : "Chat panelini kapat")
 
         Button {
-          appModel.togglePanel()
+          appModel.panelController.toggleStealthMode()
         } label: {
-          Image(systemName: "eye.slash")
+          Image(systemName: appModel.panelController.isStealthModeEnabled ? "eye.slash" : "eye")
             .font(.system(size: 12, weight: .semibold))
             .frame(width: 24, height: 24)
         }
         .buttonStyle(TopBarButtonStyle())
-        .keyboardShortcut("\\", modifiers: .command)
-        .help("Hide Panel (Cmd+\\)")
+        .help(appModel.panelController.isStealthModeEnabled ? "Stealth açık: ekran paylaşımında gizli" : "Stealth kapalı: ekran paylaşımında görünür")
 
-        Menu {
-          Button("Settings...") {
-            appModel.openSettings()
-          }
-
-          Divider()
-
-          Button("Ask AI: Cmd+Enter") {}
-            .disabled(true)
-          Button("Hide/Show: Cmd+\\") {}
-            .disabled(true)
+        Button {
+          isKeybindsPopoverPresented.toggle()
         } label: {
-          Image(systemName: "ellipsis")
-            .font(.system(size: 13, weight: .bold))
-            .frame(width: 24, height: 24)
+          HStack(spacing: 2) {
+            Image(systemName: "ellipsis")
+              .font(.system(size: 13, weight: .bold))
+            Image(systemName: "chevron.down")
+              .font(.system(size: 8, weight: .bold))
+          }
+          .frame(width: 38, height: 24)
         }
-        .menuStyle(.borderlessButton)
-        .fixedSize()
+        .buttonStyle(TopBarButtonStyle())
+        .popover(isPresented: $isKeybindsPopoverPresented, arrowEdge: .bottom) {
+          KeybindsPopoverView()
+        }
+        .help("Keybinds")
 
         Button {
           Task { @MainActor in
-            if appModel.isSessionActive {
-              await appModel.endSession()
-            } else {
-              await appModel.startSession()
-            }
+            await appModel.toggleSessionFromBar()
           }
         } label: {
-          Image(systemName: appModel.isSessionActive ? "stop.fill" : "play.fill")
+          Image(systemName: appModel.isSessionActive ? "pause.fill" : "play.fill")
             .font(.system(size: 11, weight: .bold))
-            .foregroundStyle(appModel.isSessionActive ? .red : .white)
+            .foregroundStyle(.white)
             .frame(width: 24, height: 24)
         }
         .buttonStyle(TopBarButtonStyle())
-        .help(appModel.isSessionActive ? "Stop Session" : "Start Session")
+        .help(appModel.isSessionActive ? "Pause Session" : "Start Session")
       }
       .padding(.horizontal, 12)
-      .frame(minWidth: 300, maxWidth: 420, minHeight: 46)
+      .frame(width: FloatingPanelController.barContentSize.width - 16, height: 46)
       .background {
         GlassCapsuleBackground(overlayOpacity: 0.35)
       }
@@ -179,6 +185,55 @@ struct TopBarView: View {
     .frame(minWidth: 74, alignment: .leading)
   }
 
+  private var mainActionsMenu: some View {
+    Menu {
+      if appModel.isSessionActive {
+        Button("End Session") {
+          Task { @MainActor in
+            await appModel.endSession()
+          }
+        }
+      } else {
+        Button("Start Session") {
+          Task { @MainActor in
+            await appModel.startSession()
+          }
+        }
+      }
+
+      Button(appModel.panelController.isVisible ? "Hide Panel" : "Show Panel") {
+        appModel.togglePanel()
+      }
+
+      Button("Check Meeting App") {
+        appModel.checkForMeetingApp()
+      }
+
+      Divider()
+
+      Button("Settings...") {
+        appModel.openSettings()
+      }
+
+      Button("Sign Out") {
+        Task { @MainActor in
+          await appModel.signOut()
+        }
+      }
+
+      Button("Quit Milyonus") {
+        NSApplication.shared.terminate(nil)
+      }
+    } label: {
+      Image(systemName: "chevron.down")
+        .font(.system(size: 10, weight: .bold))
+        .frame(width: 24, height: 24)
+    }
+    .menuStyle(.borderlessButton)
+    .fixedSize()
+    .help("Ana menü")
+  }
+
   private func elapsedText(now: Date) -> String {
     guard appModel.isSessionActive,
           let sessionStartedAt = appModel.sessionStartedAt else {
@@ -189,6 +244,40 @@ struct TopBarView: View {
     let minutes = elapsedSeconds / 60
     let seconds = elapsedSeconds % 60
     return String(format: "%02d:%02d", minutes, seconds)
+  }
+}
+
+private struct KeybindsPopoverView: View {
+  var body: some View {
+    VStack(alignment: .leading, spacing: 10) {
+      Text("Keybinds")
+        .font(.system(size: 13, weight: .semibold))
+
+      keybindRow(title: "Ask AI", shortcut: "⌘↵")
+      keybindRow(title: "Show / Hide Panel", shortcut: "⌘\\")
+      keybindRow(title: "Move Panel", shortcut: "Drag bar")
+    }
+    .padding(14)
+    .frame(width: 220, alignment: .leading)
+  }
+
+  private func keybindRow(title: String, shortcut: String) -> some View {
+    HStack {
+      Text(title)
+        .foregroundStyle(.secondary)
+
+      Spacer()
+
+      Text(shortcut)
+        .font(.system(.caption, design: .monospaced).weight(.semibold))
+        .padding(.horizontal, 7)
+        .padding(.vertical, 3)
+        .background {
+          RoundedRectangle(cornerRadius: 6, style: .continuous)
+            .fill(Color.secondary.opacity(0.14))
+        }
+    }
+    .font(.system(size: 12, weight: .medium))
   }
 }
 

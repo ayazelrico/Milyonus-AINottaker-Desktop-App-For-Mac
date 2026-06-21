@@ -36,6 +36,7 @@
     A1000000000000000000001B /* BackendConnectionTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000020 /* BackendConnectionTester.swift */; };
     A1000000000000000000001C /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = K10000000000000000000001 /* Supabase */; };
     A1000000000000000000001D /* TopBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000021 /* TopBarView.swift */; };
+    A1000000000000000000001E /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10000000000000000000022 /* ChatMessage.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +73,7 @@
     B1000000000000000000001F /* Milyonus.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Milyonus.app; sourceTree = BUILT_PRODUCTS_DIR; };
     B10000000000000000000020 /* BackendConnectionTester.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/BackendConnectionTester.swift; sourceTree = "<group>"; };
     B10000000000000000000021 /* TopBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/UI/Panel/TopBarView.swift; sourceTree = "<group>"; };
+    B10000000000000000000022 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Milyonus/Core/ChatMessage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +126,7 @@
         B10000000000000000000005 /* AudioChunk.swift */,
         B10000000000000000000006 /* AudioFormat.swift */,
         B10000000000000000000007 /* AuthService.swift */,
+        B10000000000000000000022 /* ChatMessage.swift */,
         B10000000000000000000008 /* Config.swift */,
         B10000000000000000000009 /* DeepgramStreamingClient.swift */,
         B1000000000000000000000A /* HotkeyManager.swift */,
@@ -275,6 +278,7 @@
         A10000000000000000000019 /* SettingsView.swift in Sources */,
         A1000000000000000000001B /* BackendConnectionTester.swift in Sources */,
         A1000000000000000000001D /* TopBarView.swift in Sources */,
+        A1000000000000000000001E /* ChatMessage.swift in Sources */,
       );
       runOnlyForDeploymentPostprocessing = 0;
     };
